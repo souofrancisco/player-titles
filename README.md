@@ -30,6 +30,9 @@ If `../test-server/plugins/` exists, the build also copies the jar there. If tha
 
 The server must provide CommandAPI as a plugin because PlayerTitles declares it as a required dependency in `plugin.yml`.
 
-## Development
+## Credits
 
-This project is intentionally minimal. It only includes the plugin lifecycle, default configuration, and SQLite/Hikari bootstrap.
+This project was designed and developed by Francisco Correia.
+
+ChatGPT (GPT-5.6 Sol) was used as a writing assistant to improve grammar, clarity, and wording in documentation and code comments. 
+All technical decisions, architecture, and implementation remain the responsibility of the project author.

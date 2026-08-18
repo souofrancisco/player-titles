@@ -1,4 +1,4 @@
-package dev.souofrancisco.playertitles.database;
+package dev.souofrancisco.playertitles.repository;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;

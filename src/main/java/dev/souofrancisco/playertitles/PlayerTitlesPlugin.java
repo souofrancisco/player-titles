@@ -1,6 +1,6 @@
 package dev.souofrancisco.playertitles;
 
-import dev.souofrancisco.playertitles.database.Database;
+import dev.souofrancisco.playertitles.repository.Database;
 import java.nio.file.Path;
 import org.bukkit.plugin.java.JavaPlugin;
 
