@@ -1,15 +1,25 @@
 package dev.souofrancisco.playertitles;
 
+import dev.souofrancisco.playertitles.config.ConfigLoader;
+import dev.souofrancisco.playertitles.config.PluginConfig;
 import dev.souofrancisco.playertitles.repository.Database;
 import java.nio.file.Path;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class PlayerTitlesPlugin extends JavaPlugin {
+
     private Database database;
+    private PluginConfig pluginConfig;
 
     @Override
     public void onEnable() {
-        saveDefaultConfig();
+        try {
+            pluginConfig = ConfigLoader.load(this);
+        } catch (IllegalArgumentException exception) {
+            getLogger().severe("Failed to load configuration: " + exception.getMessage());
+            getServer().getPluginManager().disablePlugin(this);
+            throw exception;
+        }
 
         try {
             Path dataDirectory = getDataFolder().toPath();
@@ -31,6 +41,7 @@ public final class PlayerTitlesPlugin extends JavaPlugin {
             database = null;
         }
 
+        pluginConfig = null;
         getLogger().info("PlayerTitles disabled.");
     }
 }
