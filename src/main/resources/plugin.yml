@@ -1,0 +1,8 @@
+name: PlayerTitles
+version: '${version}'
+main: dev.souofrancisco.playertitles.PlayerTitlesPlugin
+api-version: '1.21'
+description: '${description}'
+author: souofrancisco
+depend: [CommandAPI]
+folia-supported: true
