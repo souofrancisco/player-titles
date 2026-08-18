@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import dev.souofrancisco.playertitles.bootstrap.module.ConfigModule;
+import dev.souofrancisco.playertitles.bootstrap.module.CoreModule;
 import dev.souofrancisco.playertitles.bootstrap.module.PersistenceModule;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,7 +23,8 @@ public final class PlayerTitlesBootstrap {
         context = new BootstrapContext(Objects.requireNonNull(plugin, "plugin"));
         modules = List.of(
                 new ConfigModule(),
-                new PersistenceModule()
+                new PersistenceModule(),
+                new CoreModule()
         );
     }
 
@@ -46,6 +48,8 @@ public final class PlayerTitlesBootstrap {
 
     public void disable() {
         disableEnabledModules();
+        context.playerTitlesController(null);
+        context.playerTitleCache(null);
         context.database(null);
         context.pluginConfig(null);
         enabled = false;

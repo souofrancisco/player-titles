@@ -10,6 +10,11 @@ public enum TitleUnlockResult {
     PLAYER_NOT_LOADED,
 
     /**
+     * The requested title ID does not exist in the validated plugin configuration.
+     */
+    TITLE_NOT_FOUND,
+
+    /**
      * The player is loaded and already owns the requested title, so the cached unlock set was not
      * changed.
      */

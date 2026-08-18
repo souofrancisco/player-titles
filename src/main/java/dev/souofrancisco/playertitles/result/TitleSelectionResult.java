@@ -10,6 +10,11 @@ public enum TitleSelectionResult {
     PLAYER_NOT_LOADED,
 
     /**
+     * The requested title ID does not exist in the validated plugin configuration.
+     */
+    TITLE_NOT_FOUND,
+
+    /**
      * The requested title is not unlocked for the loaded player, so it was not selected.
      */
     TITLE_NOT_UNLOCKED,

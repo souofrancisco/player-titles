@@ -58,7 +58,7 @@ public interface PlayerTitlesApi {
      *     container and to any contained title ID.
      */
     @NotNull
-    Optional<@NotNull String> getSelectedTitle(@NotNull UUID playerId);
+    Optional<String> getSelectedTitle(@NotNull UUID playerId);
 
     /**
      * Checks whether a loaded player owns an unlocked title.
@@ -85,8 +85,8 @@ public interface PlayerTitlesApi {
      * @param titleId title ID to unlock
      * @return a non-null result describing the cache outcome: {@link TitleUnlockResult#UNLOCKED}
      *     when the title was newly unlocked, {@link TitleUnlockResult#ALREADY_UNLOCKED} when the
-     *     player already owned it, or {@link TitleUnlockResult#PLAYER_NOT_LOADED} when the player is
-     *     not loaded
+     *     player already owned it, {@link TitleUnlockResult#TITLE_NOT_FOUND} when the title is not
+     *     configured, or {@link TitleUnlockResult#PLAYER_NOT_LOADED} when the player is not loaded
      */
     @NotNull
     TitleUnlockResult unlockTitle(@NotNull UUID playerId, @NotNull String titleId);
@@ -102,9 +102,9 @@ public interface PlayerTitlesApi {
      * @param titleId unlocked title ID to select
      * @return a non-null result describing the cache outcome: {@link TitleSelectionResult#SELECTED}
      *     when the selected title changed, {@link TitleSelectionResult#ALREADY_SELECTED} when that
-     *     title was already selected, {@link TitleSelectionResult#TITLE_NOT_UNLOCKED} when the player
-     *     does not own the title, or {@link TitleSelectionResult#PLAYER_NOT_LOADED} when the player is
-     *     not loaded
+     *     title was already selected, {@link TitleSelectionResult#TITLE_NOT_FOUND} when the title is
+     *     not configured, {@link TitleSelectionResult#TITLE_NOT_UNLOCKED} when the player does not own
+     *     the title, or {@link TitleSelectionResult#PLAYER_NOT_LOADED} when the player is not loaded
      */
     @NotNull
     TitleSelectionResult selectTitle(@NotNull UUID playerId, @NotNull String titleId);
