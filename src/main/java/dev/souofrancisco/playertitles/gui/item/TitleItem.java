@@ -9,6 +9,8 @@ import dev.souofrancisco.playertitles.gui.TextRenderer;
 import dev.souofrancisco.playertitles.result.TitleSelectionResult;
 import java.util.List;
 import java.util.UUID;
+
+import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -17,6 +19,7 @@ import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.item.ItemWrapper;
 import xyz.xenondevs.invui.item.impl.AbstractItem;
 
+@RequiredArgsConstructor
 public final class TitleItem extends AbstractItem {
 
     private final @NotNull PlayerTitlesApi api;
@@ -24,20 +27,6 @@ public final class TitleItem extends AbstractItem {
     private final @NotNull TitleConfig title;
     private final @NotNull TextRenderer renderer;
     private final @NotNull Runnable refreshMenu;
-
-    public TitleItem(
-            @NotNull PlayerTitlesApi api,
-            @NotNull MenuConfig menuConfig,
-            @NotNull TitleConfig title,
-            @NotNull TextRenderer renderer,
-            @NotNull Runnable refreshMenu
-    ) {
-        this.api = api;
-        this.menuConfig = menuConfig;
-        this.title = title;
-        this.renderer = renderer;
-        this.refreshMenu = refreshMenu;
-    }
 
     @Override
     public @NotNull ItemProvider getItemProvider(@NotNull Player viewer) {

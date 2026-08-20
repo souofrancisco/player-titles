@@ -65,6 +65,19 @@ public final class SQLiteQueries implements PlayerTitleQueries {
             VALUES (?, ?, ?)
             """;
 
+    /** Deletes one unlocked title relationship for a player. */
+    private static final String DELETE_UNLOCK = """
+            DELETE FROM player_title_unlocks
+            WHERE player_uuid = ? AND title_id = ?
+            """;
+
+    /** Clears the selected title only when it matches the revoked title. */
+    private static final String CLEAR_SELECTED_TITLE_IF_MATCHES = """
+            UPDATE player_title_profiles
+            SET selected_title_id = NULL, updated_at = ?
+            WHERE player_uuid = ? AND selected_title_id = ?
+            """;
+
     @Override
     public @NotNull String createProfileTable() {
         return CREATE_PROFILE_TABLE;
@@ -98,5 +111,15 @@ public final class SQLiteQueries implements PlayerTitleQueries {
     @Override
     public @NotNull String insertUnlock() {
         return INSERT_UNLOCK;
+    }
+
+    @Override
+    public @NotNull String deleteUnlock() {
+        return DELETE_UNLOCK;
+    }
+
+    @Override
+    public @NotNull String clearSelectedTitleIfMatches() {
+        return CLEAR_SELECTED_TITLE_IF_MATCHES;
     }
 }

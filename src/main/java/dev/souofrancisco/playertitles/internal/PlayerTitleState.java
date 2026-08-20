@@ -36,6 +36,19 @@ public record PlayerTitleState(
         return new PlayerTitleState(playerId, nextUnlockedTitles, selectedTitleId);
     }
 
+    /**
+     * Removes an unlocked title and clears the active selection when that title was selected.
+     */
+    public @NotNull PlayerTitleState revoke(@NotNull String titleId) {
+        Set<String> nextUnlockedTitles = new HashSet<>(unlockedTitles);
+        nextUnlockedTitles.remove(titleId);
+        return new PlayerTitleState(
+                playerId,
+                nextUnlockedTitles,
+                isSelected(titleId) ? null : selectedTitleId
+        );
+    }
+
     public @NotNull PlayerTitleState select(@Nullable String titleId) {
         return new PlayerTitleState(playerId, unlockedTitles, titleId);
     }

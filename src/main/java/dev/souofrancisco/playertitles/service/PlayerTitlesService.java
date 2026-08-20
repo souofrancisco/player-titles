@@ -3,6 +3,7 @@ package dev.souofrancisco.playertitles.service;
 import dev.souofrancisco.playertitles.api.PlayerTitlesApi;
 import dev.souofrancisco.playertitles.internal.PlayerTitlesController;
 import dev.souofrancisco.playertitles.result.TitleSelectionResult;
+import dev.souofrancisco.playertitles.result.TitleRevokeResult;
 import dev.souofrancisco.playertitles.result.TitleUnlockResult;
 import java.util.Optional;
 import java.util.Set;
@@ -53,6 +54,14 @@ public final class PlayerTitlesService implements PlayerTitlesApi {
             @NotNull String titleId
     ) {
         return controller.unlockTitle(playerId, titleId);
+    }
+
+    @Override
+    public @NotNull TitleRevokeResult revokeTitle(
+            @NotNull UUID playerId,
+            @NotNull String titleId
+    ) {
+        return controller.revokeTitle(playerId, titleId);
     }
 
     @Override

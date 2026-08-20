@@ -5,6 +5,7 @@ import dev.souofrancisco.playertitles.config.PluginConfig;
 import dev.souofrancisco.playertitles.config.section.TitleConfig;
 import dev.souofrancisco.playertitles.repository.PlayerTitleRepository;
 import dev.souofrancisco.playertitles.result.TitleSelectionResult;
+import dev.souofrancisco.playertitles.result.TitleRevokeResult;
 import dev.souofrancisco.playertitles.result.TitleUnlockResult;
 import java.util.Optional;
 import java.util.Set;
@@ -22,8 +23,8 @@ import org.jetbrains.annotations.NotNull;
  * <p>Join loading flows from {@link PlayerTitleRepository} to the player's entity scheduler and only
  * then into {@link PlayerTitleCache}, so a completed database load is discarded if the player's
  * scheduler has retired. Quit unloading removes immutable cache state and delegates selected-title
- * persistence back to the repository. This class must not perform JDBC or invoke
- * {@code DatabaseExecutor} directly.
+ * persistence back to the repository. Unlock and revoke progression changes are persisted
+ * immediately. This class must not perform JDBC or invoke {@code DatabaseExecutor} directly.
  */
 @RequiredArgsConstructor
 public final class PlayerTitlesController {
@@ -117,6 +118,40 @@ public final class PlayerTitlesController {
         }
 
         return unlockResult;
+    }
+
+    public @NotNull TitleRevokeResult revokeTitle(
+            @NotNull UUID playerId,
+            @NotNull String titleId
+    ) {
+        AtomicReference<TitleRevokeResult> result =
+                new AtomicReference<>(TitleRevokeResult.PLAYER_NOT_LOADED);
+
+        cache.revokeIfLoaded(playerId, titleId, state -> {
+            if (!titleExists(titleId)) {
+                result.set(TitleRevokeResult.TITLE_NOT_FOUND);
+                return false;
+            }
+
+            if (!state.hasTitle(titleId)) {
+                result.set(TitleRevokeResult.NOT_UNLOCKED);
+                return false;
+            }
+
+            result.set(TitleRevokeResult.REVOKED);
+            return true;
+        });
+
+        TitleRevokeResult revokeResult = result.get();
+        if (revokeResult == TitleRevokeResult.REVOKED) {
+            repository.persistRevoke(playerId, titleId)
+                    .exceptionally(exception -> {
+                        logger.log(Level.SEVERE, "Could not persist revoked player title.", exception);
+                        return null;
+                    });
+        }
+
+        return revokeResult;
     }
 
     public @NotNull TitleSelectionResult selectTitle(

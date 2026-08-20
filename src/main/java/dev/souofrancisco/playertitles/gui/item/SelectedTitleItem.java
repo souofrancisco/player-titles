@@ -5,6 +5,7 @@ import dev.souofrancisco.playertitles.config.section.menu.ItemAppearanceConfig;
 import dev.souofrancisco.playertitles.config.section.menu.impl.SelectedTitleMenuItemConfig;
 import dev.souofrancisco.playertitles.gui.TextRenderer;
 import dev.souofrancisco.playertitles.result.TitleSelectionResult;
+import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -13,24 +14,13 @@ import xyz.xenondevs.invui.item.ItemProvider;
 import xyz.xenondevs.invui.item.ItemWrapper;
 import xyz.xenondevs.invui.item.impl.AbstractItem;
 
+@RequiredArgsConstructor
 public final class SelectedTitleItem extends AbstractItem {
 
     private final @NotNull PlayerTitlesApi api;
     private final @NotNull SelectedTitleMenuItemConfig config;
     private final @NotNull TextRenderer renderer;
     private final @NotNull Runnable refreshMenu;
-
-    public SelectedTitleItem(
-            @NotNull PlayerTitlesApi api,
-            @NotNull SelectedTitleMenuItemConfig config,
-            @NotNull TextRenderer renderer,
-            @NotNull Runnable refreshMenu
-    ) {
-        this.api = api;
-        this.config = config;
-        this.renderer = renderer;
-        this.refreshMenu = refreshMenu;
-    }
 
     @Override
     public @NotNull ItemProvider getItemProvider(@NotNull Player viewer) {

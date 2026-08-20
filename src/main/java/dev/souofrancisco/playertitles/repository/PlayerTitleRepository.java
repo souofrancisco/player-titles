@@ -38,6 +38,13 @@ public final class PlayerTitleRepository {
         return databaseExecutor.runAsync(() -> jdbcStore.persistUnlock(playerId, titleId));
     }
 
+    public @NotNull CompletableFuture<Void> persistRevoke(
+            @NotNull UUID playerId,
+            @NotNull String titleId
+    ) {
+        return databaseExecutor.runAsync(() -> jdbcStore.persistRevoke(playerId, titleId));
+    }
+
     public @NotNull CompletableFuture<Void> persistSelectedTitle(
             @NotNull UUID playerId,
             @Nullable String titleId

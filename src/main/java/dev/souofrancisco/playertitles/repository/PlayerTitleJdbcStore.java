@@ -81,6 +81,17 @@ public final class PlayerTitleJdbcStore {
         });
     }
 
+    public void persistRevoke(
+            @NotNull UUID playerId,
+            @NotNull String titleId
+    ) throws SQLException {
+        withTransaction(connection -> {
+            String playerUuid = playerId.toString();
+            deleteUnlock(connection, playerUuid, titleId);
+            clearSelectedTitleIfMatches(connection, playerUuid, titleId, now());
+        });
+    }
+
     public void persistSelectedTitle(
             @NotNull UUID playerId,
             @Nullable String titleId
@@ -157,6 +168,32 @@ public final class PlayerTitleJdbcStore {
             statement.setString(1, playerUuid);
             statement.setString(2, titleId);
             statement.setLong(3, timestamp);
+            statement.executeUpdate();
+        }
+    }
+
+    private void deleteUnlock(
+            @NotNull Connection connection,
+            @NotNull String playerUuid,
+            @NotNull String titleId
+    ) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(queries.deleteUnlock())) {
+            statement.setString(1, playerUuid);
+            statement.setString(2, titleId);
+            statement.executeUpdate();
+        }
+    }
+
+    private void clearSelectedTitleIfMatches(
+            @NotNull Connection connection,
+            @NotNull String playerUuid,
+            @NotNull String titleId,
+            long timestamp
+    ) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(queries.clearSelectedTitleIfMatches())) {
+            statement.setLong(1, timestamp);
+            statement.setString(2, playerUuid);
+            statement.setString(3, titleId);
             statement.executeUpdate();
         }
     }

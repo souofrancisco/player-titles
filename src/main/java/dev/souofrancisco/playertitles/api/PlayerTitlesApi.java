@@ -1,6 +1,7 @@
 package dev.souofrancisco.playertitles.api;
 
 import dev.souofrancisco.playertitles.result.TitleSelectionResult;
+import dev.souofrancisco.playertitles.result.TitleRevokeResult;
 import dev.souofrancisco.playertitles.result.TitleUnlockResult;
 import java.util.Optional;
 import java.util.Set;
@@ -104,6 +105,24 @@ public interface PlayerTitlesApi {
      */
     @NotNull
     TitleUnlockResult unlockTitle(@NotNull UUID playerId, @NotNull String titleId);
+
+    /**
+     * Revokes a title from a loaded player.
+     *
+     * <p>This progression change updates the in-memory cache and schedules immediate asynchronous
+     * persistence. If the revoked title was selected, the active selection is cleared in runtime
+     * state and in the same revoke persistence operation. Implementations must be safe to call from
+     * different Paper/Folia server threads, provided callers pass non-null arguments.
+     *
+     * @param playerId UUID of the player losing the title
+     * @param titleId title ID to revoke
+     * @return a non-null result describing the cache outcome: {@link TitleRevokeResult#REVOKED}
+     *     when the title was removed, {@link TitleRevokeResult#NOT_UNLOCKED} when the player did not
+     *     own it, {@link TitleRevokeResult#TITLE_NOT_FOUND} when the title is not configured, or
+     *     {@link TitleRevokeResult#PLAYER_NOT_LOADED} when the player is not loaded
+     */
+    @NotNull
+    TitleRevokeResult revokeTitle(@NotNull UUID playerId, @NotNull String titleId);
 
     /**
      * Selects one of a loaded player's unlocked titles.

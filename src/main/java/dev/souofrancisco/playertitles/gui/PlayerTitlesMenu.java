@@ -59,6 +59,7 @@ public final class PlayerTitlesMenu {
                 pluginConfig.menu().title(),
                 TextRenderer.RenderContext.menu()
         );
+
         Window.single()
                 .setViewer(player)
                 .setTitle(new AdventureComponentWrapper(title))
@@ -78,24 +79,30 @@ public final class PlayerTitlesMenu {
         for (var entry : pluginConfig.menu().items().entrySet()) {
             char symbol = entry.getKey();
             MenuItemConfig itemConfig = entry.getValue();
+
             switch (itemConfig) {
                 case StaticMenuItemConfig staticItem -> structure.addIngredient(
-                        symbol,
-                        new SimpleItem(renderer.renderItem(
+                        symbol, new SimpleItem(renderer.renderItem(
                                 player,
                                 staticItem.appearance(),
                                 TextRenderer.RenderContext.menu()
                         ))
                 );
+
                 case NavigationMenuItemConfig navigation -> structure.addIngredient(
                         symbol,
                         new NavigationItem(navigation, renderer, player)
                 );
+
                 case SelectedTitleMenuItemConfig selectedTitle -> {
-                    SelectedTitleItem item = new SelectedTitleItem(api, selectedTitle, renderer, refreshMenu);
+                    SelectedTitleItem item = new SelectedTitleItem(
+                            api, selectedTitle, renderer, refreshMenu
+                    );
+
                     refreshableItems.add(item);
                     structure.addIngredient(symbol, item);
                 }
+
                 default -> throw new IllegalStateException(
                         "Unsupported menu item config: " + itemConfig.getClass().getName()
                 );

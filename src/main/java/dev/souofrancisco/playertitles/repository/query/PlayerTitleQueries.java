@@ -27,4 +27,10 @@ public interface PlayerTitleQueries {
 
     /** Inserts one unlocked title while preserving idempotency for already-owned titles. */
     @NotNull String insertUnlock();
+
+    /** Deletes one unlocked title relationship for a player. */
+    @NotNull String deleteUnlock();
+
+    /** Clears the selected title only when it matches the revoked title. */
+    @NotNull String clearSelectedTitleIfMatches();
 }

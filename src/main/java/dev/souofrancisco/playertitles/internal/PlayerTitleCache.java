@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Thread-safe runtime cache for loaded player title state.
@@ -52,5 +52,16 @@ public final class PlayerTitleCache {
                                 -> updater.apply(currentState)
                 )
         );
+    }
+
+    /**
+     * Atomically revokes a title from a loaded state when the caller-approved guard passes.
+     */
+    public @NotNull Optional<PlayerTitleState> revokeIfLoaded(
+            @NotNull UUID playerId,
+            @NotNull String titleId,
+            @NotNull Predicate<PlayerTitleState> guard
+    ) {
+        return updateIfLoaded(playerId, state -> guard.test(state) ? state.revoke(titleId) : state);
     }
 }
