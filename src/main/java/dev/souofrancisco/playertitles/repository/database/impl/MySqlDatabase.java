@@ -21,7 +21,8 @@ public final class MySqlDatabase extends Database {
         HikariConfig hikariConfig = baseHikariConfig();
         hikariConfig.setDriverClassName(DRIVER_CLASS);
         hikariConfig.setJdbcUrl("jdbc:mysql://" + config.host() + ":" + config.port() + "/" + config.database()
-                + "?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=UTC");
+                + "?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=UTC"
+                + "&rewriteBatchedStatements=true");
         hikariConfig.setUsername(config.username());
         hikariConfig.setPassword(config.password());
         hikariConfig.setMaximumPoolSize(config.maximumPoolSize());

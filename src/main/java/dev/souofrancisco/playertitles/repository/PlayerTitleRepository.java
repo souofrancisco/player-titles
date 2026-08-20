@@ -2,6 +2,8 @@ package dev.souofrancisco.playertitles.repository;
 
 import dev.souofrancisco.playertitles.internal.PlayerTitleState;
 import dev.souofrancisco.playertitles.repository.executor.DatabaseExecutor;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
@@ -41,5 +43,14 @@ public final class PlayerTitleRepository {
             @Nullable String titleId
     ) {
         return databaseExecutor.runAsync(() -> jdbcStore.persistSelectedTitle(playerId, titleId));
+    }
+
+    public @NotNull CompletableFuture<Void> persistSelectedTitles(
+            @NotNull Collection<@NotNull PlayerTitleState> states
+    ) {
+        if (states.isEmpty()) return CompletableFuture.completedFuture(null);
+
+        List<PlayerTitleState> batch = List.copyOf(states);
+        return databaseExecutor.runAsync(() -> jdbcStore.persistSelectedTitles(batch));
     }
 }

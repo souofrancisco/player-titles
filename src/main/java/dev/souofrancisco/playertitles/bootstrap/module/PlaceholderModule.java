@@ -29,6 +29,7 @@ public final class PlaceholderModule implements PluginModule {
         PlayerTitlesPlaceholderParser parser = new PlayerTitlesPlaceholderParser(
                 new TitlePlaceholderResolver(api)
         );
+
         expansion = new PlayerTitlesExpansion(context.plugin(), parser);
         expansion.register();
     }

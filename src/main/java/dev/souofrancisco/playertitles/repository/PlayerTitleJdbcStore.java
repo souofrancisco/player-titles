@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -26,6 +27,9 @@ import org.jetbrains.annotations.Nullable;
  */
 @RequiredArgsConstructor
 public final class PlayerTitleJdbcStore {
+
+    /** Maximum rows sent per JDBC batch so one flush stays within driver packet limits. */
+    private static final int BATCH_SIZE = 500;
 
     private final @NotNull Database database;
     private final @NotNull PlayerTitleQueries queries;
@@ -84,18 +88,51 @@ public final class PlayerTitleJdbcStore {
         withTransaction(connection -> upsertProfile(connection, playerId.toString(), titleId, now()));
     }
 
+    public void persistSelectedTitles(
+            @NotNull Collection<@NotNull PlayerTitleState> states
+    ) throws SQLException {
+        if (states.isEmpty()) return;
+
+        withTransaction(connection -> {
+            long timestamp = now();
+            try (PreparedStatement statement = connection.prepareStatement(queries.upsertProfile())) {
+                int pending = 0;
+                for (PlayerTitleState state : states) {
+                    bindProfileUpsert(statement, state.playerId().toString(), state.selectedTitleId(), timestamp);
+                    statement.addBatch();
+
+                    if (++pending == BATCH_SIZE) {
+                        statement.executeBatch();
+                        pending = 0;
+                    }
+                }
+
+                if (pending > 0) statement.executeBatch();
+            }
+        });
+    }
+
     private void upsertProfile(
             @NotNull Connection connection,
             @NotNull String playerUuid,
-            String selectedTitleId,
+            @Nullable String selectedTitleId,
             long timestamp
     ) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(queries.upsertProfile())) {
-            statement.setString(1, playerUuid);
-            statement.setString(2, selectedTitleId);
-            statement.setLong(3, timestamp);
+            bindProfileUpsert(statement, playerUuid, selectedTitleId, timestamp);
             statement.executeUpdate();
         }
+    }
+
+    private void bindProfileUpsert(
+            @NotNull PreparedStatement statement,
+            @NotNull String playerUuid,
+            @Nullable String selectedTitleId,
+            long timestamp
+    ) throws SQLException {
+        statement.setString(1, playerUuid);
+        statement.setString(2, selectedTitleId);
+        statement.setLong(3, timestamp);
     }
 
     private void insertProfileIfAbsent(
