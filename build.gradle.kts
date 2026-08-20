@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "A minimal Folia-compatible player titles plugin foundation."
 
 val lombokVersion = "1.18.46"
+val shadedLibraryPackage = "dev.souofrancisco.playertitles.libs"
 
 java {
     toolchain {
@@ -59,6 +60,14 @@ tasks.shadowJar {
     archiveBaseName.set("player-titles")
     archiveClassifier.set("")
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+    relocate("xyz.xenondevs.invui", "$shadedLibraryPackage.invui")
+    relocate("xyz.xenondevs.inventoryaccess", "$shadedLibraryPackage.inventoryaccess")
+    relocate("org.jetbrains.annotations", "$shadedLibraryPackage.jetbrains.annotations")
+    relocate("com.zaxxer.hikari", "$shadedLibraryPackage.hikari")
+    relocate("com.mysql", "$shadedLibraryPackage.mysql")
+    relocate("com.google.protobuf", "$shadedLibraryPackage.protobuf")
+
     mergeServiceFiles()
 }
 
