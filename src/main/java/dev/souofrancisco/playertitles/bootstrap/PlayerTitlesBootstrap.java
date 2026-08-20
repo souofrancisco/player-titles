@@ -4,6 +4,7 @@ import dev.souofrancisco.playertitles.PlayerTitlesPlugin;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import dev.souofrancisco.playertitles.bootstrap.module.CommandModule;
 import dev.souofrancisco.playertitles.bootstrap.module.ConfigModule;
 import dev.souofrancisco.playertitles.bootstrap.module.CoreModule;
 import dev.souofrancisco.playertitles.bootstrap.module.ListenerModule;
@@ -28,7 +29,8 @@ public final class PlayerTitlesBootstrap {
                 new PersistenceModule(),
                 new CoreModule(),
                 new ListenerModule(),
-                new PlaceholderModule()
+                new PlaceholderModule(),
+                new CommandModule()
         );
     }
 

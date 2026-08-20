@@ -1,0 +1,66 @@
+title: "<gradient:#fc782c:#FF9356><bold>YOUR TITLES</bold></gradient>"
+title-slot: "A"
+layout:
+  - "BBBBBBBBB"
+  - "BAAAAAAAB"
+  - "BAAAAAAAB"
+  - "BAAAAAAAB"
+  - "BBBBBBBBB"
+  - "BPBBSBBBN"
+items:
+  B:
+    type: static
+    material: BLACK_STAINED_GLASS_PANE
+    name: " "
+    lore: []
+  P:
+    type: previous-page
+    available:
+      material: ARROW
+      name: "<#fc782c>Previous Page"
+      lore:
+        - "<gray>Go to the previous page."
+    unavailable:
+      material: GRAY_DYE
+      name: "<gray>No Previous Page"
+      lore:
+        - "<dark_gray>You are already on the first page."
+  N:
+    type: next-page
+    available:
+      material: ARROW
+      name: "<#fc782c>Next Page"
+      lore:
+        - "<gray>Go to the next page."
+    unavailable:
+      material: GRAY_DYE
+      name: "<gray>No Next Page"
+      lore:
+        - "<dark_gray>You are already on the last page."
+  S:
+    type: selected-title
+    selected:
+      material: NAME_TAG
+      name: "<#fc782c>Selected Title"
+      lore:
+        - ""
+        - "<gray>Current: <white><selected_title>"
+        - ""
+        - "<yellow>Click to remove it."
+    none:
+      material: BARRIER
+      name: "<red>No Title Selected"
+      lore:
+        - ""
+        - "<gray>You currently have no title selected."
+title-status:
+  unlocked:
+    - ""
+    - "<green>Unlocked"
+    - "<yellow>Click to select."
+  selected:
+    - ""
+    - "<green>Selected"
+  locked:
+    - ""
+    - "<red>Locked"

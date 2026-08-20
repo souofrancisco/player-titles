@@ -21,8 +21,7 @@ public final class TitleConfigLoader {
 
     private static final Pattern TITLE_ID_PATTERN = Pattern.compile("[a-z0-9_-]+");
 
-    public static @NotNull Map<@NotNull String, @NotNull TitleConfig> load(@NotNull ConfigReader root) {
-        ConfigReader titlesReader = root.requireSection("titles");
+    public static @NotNull Map<@NotNull String, @NotNull TitleConfig> load(@NotNull ConfigReader titlesReader) {
         Map<String, TitleConfig> titles = new LinkedHashMap<>();
 
         for (String titleId : titlesReader.keys()) {
