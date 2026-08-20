@@ -2,10 +2,12 @@ package dev.souofrancisco.playertitles.config;
 
 import dev.souofrancisco.playertitles.config.loader.DatabaseConfigLoader;
 import dev.souofrancisco.playertitles.config.loader.MenuConfigLoader;
+import dev.souofrancisco.playertitles.config.loader.MessageConfigLoader;
 import dev.souofrancisco.playertitles.config.loader.TitleConfigLoader;
 import dev.souofrancisco.playertitles.config.section.DatabaseConfig;
 import dev.souofrancisco.playertitles.config.section.TitleConfig;
 import dev.souofrancisco.playertitles.config.section.menu.MenuConfig;
+import dev.souofrancisco.playertitles.config.section.message.PluginMessagesConfig;
 import java.io.File;
 import java.util.Map;
 import lombok.experimental.UtilityClass;
@@ -63,8 +65,9 @@ public final class ConfigLoader {
         DatabaseConfig database = DatabaseConfigLoader.load(new ConfigReader(configRoot));
         Map<String, TitleConfig> titles = TitleConfigLoader.load(new ConfigReader(titlesRoot));
         MenuConfig menu = MenuConfigLoader.load(new ConfigReader(menuRoot));
+        PluginMessagesConfig messages = MessageConfigLoader.load(new ConfigReader(configRoot));
 
-        return new PluginConfig(database, titles, menu);
+        return new PluginConfig(database, titles, menu, messages);
     }
 
     private static void saveDefaultResource(

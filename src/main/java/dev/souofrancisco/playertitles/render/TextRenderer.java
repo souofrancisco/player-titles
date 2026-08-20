@@ -1,12 +1,9 @@
-package dev.souofrancisco.playertitles.gui.render;
+package dev.souofrancisco.playertitles.render;
 
 import dev.souofrancisco.playertitles.config.section.TitleConfig;
+import dev.souofrancisco.playertitles.text.PlayerTitlesTextRenderer;
 import java.util.List;
-
-import lombok.RequiredArgsConstructor;
-import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.entity.Player;
@@ -15,21 +12,22 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Renders configured GUI text through external PlaceholderAPI placeholders, PlayerTitles internal
- * MiniMessage tags, and MiniMessage component deserialization.
+ * Renders configured GUI text with GUI-specific PlayerTitles internal MiniMessage tags.
  */
-@RequiredArgsConstructor
 public final class TextRenderer {
 
-    private final @NotNull JavaPlugin plugin;
-    private final @NotNull MiniMessage miniMessage = MiniMessage.miniMessage();
+    private final @NotNull PlayerTitlesTextRenderer textRenderer;
+
+    public TextRenderer(@NotNull JavaPlugin plugin) {
+        this.textRenderer = new PlayerTitlesTextRenderer(plugin);
+    }
 
     public @NotNull Component render(
             @NotNull Player player,
             @NotNull String raw,
             @NotNull RenderContext context
     ) {
-        return miniMessage.deserialize(applyExternalPlaceholders(player, raw), tagResolver(player, context));
+        return textRenderer.render(player, raw, tagResolver(player, context));
     }
 
     public @NotNull List<@NotNull Component> renderLore(
@@ -40,14 +38,6 @@ public final class TextRenderer {
         return rawLore.stream()
                 .map(line -> render(player, line, context))
                 .toList();
-    }
-
-    private @NotNull String applyExternalPlaceholders(
-            @NotNull Player player,
-            @NotNull String raw
-    ) {
-        if (!plugin.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) return raw;
-        return PlaceholderAPI.setPlaceholders(player, raw);
     }
 
     private @NotNull TagResolver tagResolver(
@@ -71,7 +61,7 @@ public final class TextRenderer {
             @Nullable TitleConfig title
     ) {
         if (title == null) return Component.empty();
-        return miniMessage.deserialize(applyExternalPlaceholders(player, title.displayName()));
+        return textRenderer.render(player, title.displayName());
     }
 
     private @NotNull Component titlePrefix(
@@ -79,6 +69,6 @@ public final class TextRenderer {
             @Nullable TitleConfig title
     ) {
         if (title == null) return Component.empty();
-        return miniMessage.deserialize(applyExternalPlaceholders(player, title.prefix()));
+        return textRenderer.render(player, title.prefix());
     }
 }

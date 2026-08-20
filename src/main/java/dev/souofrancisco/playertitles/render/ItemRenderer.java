@@ -1,4 +1,4 @@
-package dev.souofrancisco.playertitles.gui.render;
+package dev.souofrancisco.playertitles.render;
 
 import dev.souofrancisco.playertitles.config.section.TitleIconConfig;
 import dev.souofrancisco.playertitles.config.section.menu.ItemAppearanceConfig;

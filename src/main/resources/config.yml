@@ -10,3 +10,17 @@ database:
     username: player_titles
     password: ""
     maximum-pool-size: 4
+
+messages:
+  admin:
+    give:
+      success: "<green>Title <white><title></white> granted to <white><player></white>."
+      already-unlocked: "<yellow><player> already owns <title>."
+      title-not-found: "<red>Title <title> does not exist."
+      player-not-loaded: "<red><player> is not currently loaded."
+
+    revoke:
+      success: "<green>Title <white><title></white> revoked from <white><player></white>."
+      not-unlocked: "<yellow><player> does not own <title>."
+      title-not-found: "<red>Title <title> does not exist."
+      player-not-loaded: "<red><player> is not currently loaded."
