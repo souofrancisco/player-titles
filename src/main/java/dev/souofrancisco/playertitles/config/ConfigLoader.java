@@ -9,30 +9,53 @@ import dev.souofrancisco.playertitles.config.section.TitleConfig;
 import dev.souofrancisco.playertitles.config.section.menu.MenuConfig;
 import dev.souofrancisco.playertitles.config.section.message.PluginMessagesConfig;
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import lombok.experimental.UtilityClass;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Root orchestrator for loading the plugin YAML into immutable typed configuration records.
+ * Orchestrates all plugin YAML files into one validated {@link PluginConfig}.
+ *
+ * <p>This class stores the currently active configuration. {@link #reload} only replaces that
+ * reference after the next config has been fully read and validated. A failed reload leaves the
+ * previous configuration unchanged.
+ *
+ * <p>Text values are kept as raw templates. Player-aware rendering applies PlaceholderAPI where
+ * player context is available, then parses the result with MiniMessage and internal PlayerTitles
+ * tag resolvers.
  */
 @UtilityClass
 public final class ConfigLoader {
 
+    private static final String CONFIG_FILE = "config.yml";
     private static final String TITLES_FILE = "titles.yml";
     private static final String MENU_FILE = "menu.yml";
 
+    private static volatile PluginConfig current;
+
     /**
-     * Reads the plugin's active YAML files into immutable typed records.
+     * Returns the currently active validated configuration.
      *
-     * <p>Text values are kept as raw templates. Player-aware rendering applies PlaceholderAPI
-     * where player context is available, then parses the result with MiniMessage and internal
-     * PlayerTitles tag resolvers.
+     * @return active plugin configuration
+     * @throws IllegalStateException when configuration has not been loaded
+     */
+    public static @NotNull PluginConfig current() {
+        PluginConfig config = current;
+        if (config == null)
+            throw new IllegalStateException("Plugin configuration has not been loaded.");
+
+        return config;
+    }
+
+    /**
+     * Ensures default YAML files exist, then reads and activates a validated configuration.
      *
-     * @param plugin plugin whose Bukkit configuration should be loaded
+     * @param plugin plugin whose data folder contains the YAML files
      * @return validated immutable configuration
      * @throws IllegalArgumentException when the YAML shape or values are invalid
      */
@@ -40,24 +63,39 @@ public final class ConfigLoader {
         plugin.saveDefaultConfig();
         saveDefaultResource(plugin, TITLES_FILE);
         saveDefaultResource(plugin, MENU_FILE);
-        plugin.reloadConfig();
 
-        return load(
-                plugin.getConfig(),
+        PluginConfig next = read(plugin);
+        current = next;
+        return next;
+    }
+
+    /**
+     * Rereads the existing YAML files and replaces the active configuration only after complete
+     * validation.
+     *
+     * @param plugin plugin whose data folder contains the YAML files
+     * @return the newly activated configuration
+     * @throws IllegalArgumentException when the YAML shape or values are invalid
+     * @throws IllegalStateException when configuration has not been loaded
+     */
+    public static @NotNull PluginConfig reload(@NotNull JavaPlugin plugin) {
+        if (current == null)
+            throw new IllegalStateException("Plugin configuration has not been loaded.");
+
+        PluginConfig next = read(plugin);
+        current = next;
+        return next;
+    }
+
+    private static @NotNull PluginConfig read(@NotNull JavaPlugin plugin) {
+        return parse(
+                loadYaml(plugin, CONFIG_FILE),
                 loadYaml(plugin, TITLES_FILE),
                 loadYaml(plugin, MENU_FILE)
         );
     }
 
-    /**
-     * Converts Bukkit configuration sections into the typed root config.
-     *
-     * @param configRoot global/plugin infrastructure configuration
-     * @param titlesRoot title definition configuration
-     * @param menuRoot menu configuration
-     * @return validated immutable configuration
-     */
-    public static @NotNull PluginConfig load(
+    private static @NotNull PluginConfig parse(
             @NotNull ConfigurationSection configRoot,
             @NotNull ConfigurationSection titlesRoot,
             @NotNull ConfigurationSection menuRoot
@@ -84,6 +122,13 @@ public final class ConfigLoader {
             @NotNull JavaPlugin plugin,
             @NotNull String fileName
     ) {
-        return YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), fileName));
+        File file = new File(plugin.getDataFolder(), fileName);
+        YamlConfiguration configuration = new YamlConfiguration();
+        try {
+            configuration.load(file);
+            return configuration;
+        } catch (IOException | InvalidConfigurationException exception) {
+            throw new IllegalArgumentException("Could not load " + fileName + ".", exception);
+        }
     }
 }

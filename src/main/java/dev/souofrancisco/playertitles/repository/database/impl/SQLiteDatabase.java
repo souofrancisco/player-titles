@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 public final class SQLiteDatabase extends Database {
 
     private static final String DRIVER_CLASS = "org.sqlite.JDBC";
+    private static final String DATABASE_DIRECTORY = "db";
 
     /** Enables write-ahead logging for safer concurrent reads while writes are serialized. */
     private static final String ENABLE_WAL = "PRAGMA journal_mode = WAL";
@@ -61,9 +62,10 @@ public final class SQLiteDatabase extends Database {
 
     private @NotNull Path databaseFile() {
         Path normalizedDataDirectory = dataDirectory.toAbsolutePath().normalize();
-        Path databaseFile = normalizedDataDirectory.resolve(config.sqliteFile()).normalize();
-        if (!databaseFile.startsWith(normalizedDataDirectory)) {
-            throw new IllegalArgumentException("SQLite database file must stay inside the plugin data directory.");
+        Path databaseDirectory = normalizedDataDirectory.resolve(DATABASE_DIRECTORY).normalize();
+        Path databaseFile = databaseDirectory.resolve(config.sqliteFile()).normalize();
+        if (!databaseFile.startsWith(databaseDirectory)) {
+            throw new IllegalArgumentException("SQLite database file must stay inside the plugin database directory.");
         }
         return databaseFile;
     }

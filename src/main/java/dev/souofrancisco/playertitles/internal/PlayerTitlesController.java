@@ -1,7 +1,7 @@
 package dev.souofrancisco.playertitles.internal;
 
 import dev.souofrancisco.playertitles.PlayerTitlesPlugin;
-import dev.souofrancisco.playertitles.config.PluginConfig;
+import dev.souofrancisco.playertitles.config.ConfigLoader;
 import dev.souofrancisco.playertitles.config.section.TitleConfig;
 import dev.souofrancisco.playertitles.repository.PlayerTitleRepository;
 import dev.souofrancisco.playertitles.result.TitleSelectionResult;
@@ -32,7 +32,6 @@ public final class PlayerTitlesController {
 
     private final @NotNull PlayerTitlesPlugin plugin;
     private final @NotNull PlayerTitleCache cache;
-    private final @NotNull PluginConfig pluginConfig;
     private final @NotNull PlayerTitleRepository repository;
     private final @NotNull Logger logger;
 
@@ -77,7 +76,7 @@ public final class PlayerTitlesController {
 
     public @NotNull Optional<String> getSelectedTitlePrefix(@NotNull UUID playerId) {
         return getSelectedTitle(playerId)
-                .map(pluginConfig.titles()::get)
+                .map(ConfigLoader.current().titles()::get)
                 .map(TitleConfig::prefix);
     }
 
@@ -211,6 +210,6 @@ public final class PlayerTitlesController {
     }
 
     private boolean titleExists(@NotNull String titleId) {
-        return pluginConfig.titles().containsKey(titleId);
+        return ConfigLoader.current().titles().containsKey(titleId);
     }
 }

@@ -2,7 +2,6 @@ package dev.souofrancisco.playertitles.bootstrap;
 
 import dev.souofrancisco.playertitles.PlayerTitlesPlugin;
 import dev.souofrancisco.playertitles.api.PlayerTitlesApi;
-import dev.souofrancisco.playertitles.config.PluginConfig;
 import dev.souofrancisco.playertitles.internal.PlayerTitleCache;
 import dev.souofrancisco.playertitles.internal.PlayerTitlesController;
 import dev.souofrancisco.playertitles.repository.database.Database;
@@ -26,7 +25,6 @@ public final class BootstrapContext {
 
     private final @NotNull PlayerTitlesPlugin plugin;
 
-    private @Nullable PluginConfig pluginConfig;
     private @Nullable Database database;
     private @Nullable DatabaseExecutor databaseExecutor;
     private @Nullable PlayerTitleRepository playerTitleRepository;

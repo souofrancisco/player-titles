@@ -1,5 +1,6 @@
 package dev.souofrancisco.playertitles.gui;
 
+import dev.souofrancisco.playertitles.config.ConfigLoader;
 import dev.souofrancisco.playertitles.config.PluginConfig;
 import dev.souofrancisco.playertitles.internal.PlayerTitlesController;
 import dev.souofrancisco.playertitles.config.section.TitleConfig;
@@ -37,7 +38,6 @@ import xyz.xenondevs.invui.window.Window;
  */
 public final class PlayerTitlesMenu {
 
-    private final @NotNull PluginConfig pluginConfig;
     private final @NotNull PlayerTitlesController controller;
 
     private final @NotNull TextRenderer textRenderer;
@@ -45,16 +45,15 @@ public final class PlayerTitlesMenu {
 
     public PlayerTitlesMenu(
             @NotNull JavaPlugin plugin,
-            @NotNull PluginConfig pluginConfig,
             @NotNull PlayerTitlesController controller
     ) {
-        this.pluginConfig = pluginConfig;
         this.controller = controller;
         this.textRenderer = new TextRenderer(plugin);
         this.itemRenderer = new ItemRenderer(textRenderer);
     }
 
     public void open(@NotNull Player player) {
+        PluginConfig config = ConfigLoader.current();
         UUID playerId = player.getUniqueId();
         AtomicReference<MenuState> state = new AtomicReference<>(loadState(playerId));
         Supplier<MenuState> stateSupplier = state::get;
@@ -64,8 +63,8 @@ public final class PlayerTitlesMenu {
             refreshableItems.forEach(Item::notifyWindows);
         };
 
-        Structure structure = structure(player, stateSupplier, refreshableItems, refreshMenu);
-        List<Item> titleItems = titleItems(stateSupplier, refreshableItems, refreshMenu);
+        Structure structure = structure(config, player, stateSupplier, refreshableItems, refreshMenu);
+        List<Item> titleItems = titleItems(config, stateSupplier, refreshableItems, refreshMenu);
         PagedGui<Item> gui = PagedGui.items()
                 .setStructure(structure)
                 .setContent(titleItems)
@@ -73,8 +72,8 @@ public final class PlayerTitlesMenu {
 
         Component title = textRenderer.render(
                 player,
-                pluginConfig.menu().title(),
-                renderContext(state.get())
+                config.menu().title(),
+                renderContext(config, state.get())
         );
 
         Window.single()
@@ -86,15 +85,16 @@ public final class PlayerTitlesMenu {
     }
 
     private @NotNull Structure structure(
+            @NotNull PluginConfig config,
             @NotNull Player player,
             @NotNull Supplier<@NotNull MenuState> stateSupplier,
             @NotNull List<@NotNull Item> refreshableItems,
             @NotNull Runnable refreshMenu
     ) {
-        Structure structure = new Structure(pluginConfig.menu().layout().toArray(String[]::new));
-        structure.addIngredient(pluginConfig.menu().titleSlot(), Markers.CONTENT_LIST_SLOT_HORIZONTAL);
+        Structure structure = new Structure(config.menu().layout().toArray(String[]::new));
+        structure.addIngredient(config.menu().titleSlot(), Markers.CONTENT_LIST_SLOT_HORIZONTAL);
 
-        for (var entry : pluginConfig.menu().items().entrySet()) {
+        for (var entry : config.menu().items().entrySet()) {
             char symbol = entry.getKey();
             MenuItemConfig itemConfig = entry.getValue();
 
@@ -103,13 +103,18 @@ public final class PlayerTitlesMenu {
                         symbol, new SimpleItem(itemRenderer.renderItem(
                                 player,
                                 staticItem.appearance(),
-                                renderContext(stateSupplier.get())
+                                renderContext(config, stateSupplier.get())
                         ))
                 );
 
                 case NavigationMenuItemConfig navigation -> structure.addIngredient(
                         symbol,
-                        new NavigationItem(navigation, itemRenderer, player, () -> renderContext(stateSupplier.get()))
+                        new NavigationItem(
+                                navigation,
+                                itemRenderer,
+                                player,
+                                () -> renderContext(config, stateSupplier.get())
+                        )
                 );
 
                 case SelectedTitleMenuItemConfig selectedTitle -> {
@@ -118,7 +123,7 @@ public final class PlayerTitlesMenu {
                             selectedTitle,
                             itemRenderer,
                             stateSupplier,
-                            () -> renderContext(stateSupplier.get()),
+                            () -> renderContext(config, stateSupplier.get()),
                             refreshMenu
                     );
 
@@ -136,19 +141,20 @@ public final class PlayerTitlesMenu {
     }
 
     private @NotNull List<@NotNull Item> titleItems(
+            @NotNull PluginConfig config,
             @NotNull Supplier<@NotNull MenuState> stateSupplier,
             @NotNull List<@NotNull Item> refreshableItems,
             @NotNull Runnable refreshMenu
     ) {
         List<Item> items = new ArrayList<>();
-        for (TitleConfig title : pluginConfig.titles().values()) {
+        for (TitleConfig title : config.titles().values()) {
             TitleItem item = new TitleItem(
                     controller,
-                    pluginConfig.menu(),
+                    config.menu(),
                     title,
                     itemRenderer,
                     stateSupplier,
-                    () -> renderContext(stateSupplier.get()),
+                    () -> renderContext(config, stateSupplier.get()),
                     refreshMenu
             );
             refreshableItems.add(item);
@@ -165,12 +171,18 @@ public final class PlayerTitlesMenu {
         );
     }
 
-    private @NotNull RenderContext renderContext(@NotNull MenuState state) {
-        return RenderContext.menu(selectedTitle(state));
+    private @NotNull RenderContext renderContext(
+            @NotNull PluginConfig config,
+            @NotNull MenuState state
+    ) {
+        return RenderContext.menu(selectedTitle(config, state));
     }
 
-    private @Nullable TitleConfig selectedTitle(@NotNull MenuState state) {
+    private @Nullable TitleConfig selectedTitle(
+            @NotNull PluginConfig config,
+            @NotNull MenuState state
+    ) {
         String selectedTitleId = state.selectedTitleId();
-        return selectedTitleId == null ? null : pluginConfig.titles().get(selectedTitleId);
+        return selectedTitleId == null ? null : config.titles().get(selectedTitleId);
     }
 }

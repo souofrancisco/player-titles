@@ -7,5 +7,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public record AdminMessagesConfig(
         @NotNull AdminGiveMessagesConfig give,
-        @NotNull AdminRevokeMessagesConfig revoke
+        @NotNull AdminRevokeMessagesConfig revoke,
+        @NotNull AdminReloadMessagesConfig reload
 ) {}

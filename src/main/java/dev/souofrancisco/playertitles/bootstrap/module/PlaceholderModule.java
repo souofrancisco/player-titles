@@ -6,6 +6,7 @@ import dev.souofrancisco.playertitles.bootstrap.PluginModule;
 import dev.souofrancisco.playertitles.placeholder.PlayerTitlesExpansion;
 import dev.souofrancisco.playertitles.placeholder.PlayerTitlesPlaceholderParser;
 import dev.souofrancisco.playertitles.placeholder.resolver.TitlePlaceholderResolver;
+import dev.souofrancisco.playertitles.render.TextRenderer;
 import org.bukkit.plugin.PluginManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +28,7 @@ public final class PlaceholderModule implements PluginModule {
             throw new IllegalStateException("PlayerTitlesController must be initialized before PlaceholderModule.");
 
         PlayerTitlesPlaceholderParser parser = new PlayerTitlesPlaceholderParser(
-                new TitlePlaceholderResolver(controller)
+                new TitlePlaceholderResolver(controller, new TextRenderer(context.plugin()))
         );
 
         expansion = new PlayerTitlesExpansion(context.plugin(), parser);

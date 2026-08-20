@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * <p>Available placeholders:
  * <ul>
- *     <li>{@code %playertitles_title%} - Returns the player's currently selected title.</li>
+ *     <li>{@code %playertitles_title%} - Returns the selected title prefix for PlaceholderAPI.</li>
  * </ul>
  */
 @RequiredArgsConstructor

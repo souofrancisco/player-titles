@@ -2,6 +2,7 @@ package dev.souofrancisco.playertitles.bootstrap.module;
 
 import dev.souofrancisco.playertitles.bootstrap.BootstrapContext;
 import dev.souofrancisco.playertitles.bootstrap.PluginModule;
+import dev.souofrancisco.playertitles.config.ConfigLoader;
 import dev.souofrancisco.playertitles.config.PluginConfig;
 import dev.souofrancisco.playertitles.internal.PlayerTitleCache;
 import dev.souofrancisco.playertitles.repository.database.Database;
@@ -22,9 +23,7 @@ public final class PersistenceModule implements PluginModule {
 
     @Override
     public void enable(@NotNull BootstrapContext context) {
-        PluginConfig pluginConfig = context.pluginConfig();
-        if (pluginConfig == null)
-            throw new IllegalStateException("PluginConfig must be initialized before PersistenceModule.");
+        PluginConfig pluginConfig = ConfigLoader.current();
 
         Path dataDirectory = context.plugin().getDataFolder().toPath();
 

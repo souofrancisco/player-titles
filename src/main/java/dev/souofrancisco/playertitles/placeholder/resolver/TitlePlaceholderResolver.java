@@ -1,10 +1,12 @@
 package dev.souofrancisco.playertitles.placeholder.resolver;
 
 import dev.souofrancisco.playertitles.internal.PlayerTitlesController;
+import dev.souofrancisco.playertitles.render.TextRenderer;
 import java.util.UUID;
-
 import lombok.RequiredArgsConstructor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,8 +17,14 @@ import org.jetbrains.annotations.Nullable;
 public final class TitlePlaceholderResolver implements PlaceholderResolver {
 
     private static final @NotNull String KEY = "title";
+    private static final @NotNull LegacyComponentSerializer PAPI_TEXT = LegacyComponentSerializer.builder()
+            .character(LegacyComponentSerializer.SECTION_CHAR)
+            .hexColors()
+            .useUnusualXRepeatedCharacterHexFormat()
+            .build();
 
     private final @NotNull PlayerTitlesController controller;
+    private final @NotNull TextRenderer textRenderer;
 
     @Override
     public boolean supports(@NotNull String key) {
@@ -30,6 +38,11 @@ public final class TitlePlaceholderResolver implements PlaceholderResolver {
         UUID playerId = player.getUniqueId();
         if (!controller.isLoaded(playerId)) return "";
 
-        return controller.getSelectedTitlePrefix(playerId).orElse("");
+        Player online = player.getPlayer();
+        if (online == null) return "";
+
+        return controller.getSelectedTitlePrefix(playerId)
+                .map(prefix -> PAPI_TEXT.serialize(textRenderer.render(online, prefix)))
+                .orElse("");
     }
 }

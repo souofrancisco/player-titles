@@ -2,7 +2,6 @@ package dev.souofrancisco.playertitles.bootstrap.module;
 
 import dev.souofrancisco.playertitles.bootstrap.BootstrapContext;
 import dev.souofrancisco.playertitles.bootstrap.PluginModule;
-import dev.souofrancisco.playertitles.config.PluginConfig;
 import dev.souofrancisco.playertitles.internal.PlayerTitleCache;
 import dev.souofrancisco.playertitles.internal.PlayerTitlesController;
 import dev.souofrancisco.playertitles.repository.PlayerTitleRepository;
@@ -16,10 +15,6 @@ public final class CoreModule implements PluginModule {
 
     @Override
     public void enable(@NotNull BootstrapContext context) {
-        PluginConfig pluginConfig = context.pluginConfig();
-        if (pluginConfig == null)
-            throw new IllegalStateException("PluginConfig must be initialized before CoreModule.");
-
         PlayerTitleRepository repository = context.playerTitleRepository();
         if (repository == null)
             throw new IllegalStateException("PlayerTitleRepository must be initialized before CoreModule.");
@@ -28,7 +23,6 @@ public final class CoreModule implements PluginModule {
         PlayerTitlesController controller = new PlayerTitlesController(
                 context.plugin(),
                 cache,
-                pluginConfig,
                 repository,
                 context.plugin().getLogger()
         );

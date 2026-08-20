@@ -3,6 +3,7 @@ package dev.souofrancisco.playertitles.config.loader;
 import dev.souofrancisco.playertitles.config.ConfigReader;
 import dev.souofrancisco.playertitles.config.section.message.AdminGiveMessagesConfig;
 import dev.souofrancisco.playertitles.config.section.message.AdminMessagesConfig;
+import dev.souofrancisco.playertitles.config.section.message.AdminReloadMessagesConfig;
 import dev.souofrancisco.playertitles.config.section.message.AdminRevokeMessagesConfig;
 import dev.souofrancisco.playertitles.config.section.message.PluginMessagesConfig;
 import lombok.experimental.UtilityClass;
@@ -22,7 +23,8 @@ public final class MessageConfigLoader {
     private static @NotNull AdminMessagesConfig loadAdmin(@NotNull ConfigReader adminReader) {
         return new AdminMessagesConfig(
                 loadGive(adminReader.requireSection("give")),
-                loadRevoke(adminReader.requireSection("revoke"))
+                loadRevoke(adminReader.requireSection("revoke")),
+                loadReload(adminReader.requireSection("reload"))
         );
     }
 
@@ -41,6 +43,14 @@ public final class MessageConfigLoader {
                 revokeReader.requireString("not-unlocked"),
                 revokeReader.requireString("title-not-found"),
                 revokeReader.requireString("player-not-loaded")
+        );
+    }
+
+    private static @NotNull AdminReloadMessagesConfig loadReload(@NotNull ConfigReader reloadReader) {
+        return new AdminReloadMessagesConfig(
+                reloadReader.requireString("success"),
+                reloadReader.requireString("success-database-restart-required"),
+                reloadReader.requireString("failure")
         );
     }
 }

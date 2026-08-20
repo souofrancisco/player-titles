@@ -1,5 +1,5 @@
 database:
-  # sqlite is the default and stores data in the plugin data folder.
+  # sqlite is the default and stores data in the plugin db/ folder.
   type: sqlite
   sqlite:
     file: player-titles.db
@@ -24,3 +24,8 @@ messages:
       not-unlocked: "<yellow><player> does not own <title>."
       title-not-found: "<red>Title <title> does not exist."
       player-not-loaded: "<red><player> is not currently loaded."
+
+    reload:
+      success: "<green>PlayerTitles configuration reloaded."
+      success-database-restart-required: "<green>PlayerTitles configuration reloaded. <yellow>Database changes require a server restart."
+      failure: "<red>PlayerTitles configuration reload failed: <white><error></white>"
