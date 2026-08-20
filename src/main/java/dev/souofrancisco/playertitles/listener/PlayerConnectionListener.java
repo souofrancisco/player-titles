@@ -10,9 +10,6 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Thin Bukkit listener that only forwards player lifecycle events to {@link PlayerTitlesController}.
- *
- * <p>This class must not access persistence, cache state, database executors, JDBC, or Folia
- * entity schedulers. The controller owns all lifecycle orchestration after an event is received.
  */
 @RequiredArgsConstructor
 public final class PlayerConnectionListener implements Listener {

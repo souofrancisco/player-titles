@@ -106,6 +106,14 @@ public final class ConfigReader {
         return value;
     }
 
+    public boolean optionalBoolean(@NotNull String key, boolean fallback) {
+        if (!section.isSet(key)) return fallback;
+        if (!section.isBoolean(key))
+            throw invalid(key, "must be true or false");
+
+        return section.getBoolean(key);
+    }
+
     public int optionalInt(@NotNull String key, int fallback) {
         if (!section.isSet(key)) return fallback;
         if (!section.isInt(key))

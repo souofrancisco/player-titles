@@ -4,6 +4,7 @@ import dev.souofrancisco.playertitles.bootstrap.BootstrapContext;
 import dev.souofrancisco.playertitles.bootstrap.PluginModule;
 import dev.souofrancisco.playertitles.config.ConfigLoader;
 import dev.souofrancisco.playertitles.config.PluginConfig;
+import dev.souofrancisco.playertitles.PlayerTitlesDebug;
 import dev.souofrancisco.playertitles.internal.PlayerTitleCache;
 import dev.souofrancisco.playertitles.repository.database.Database;
 import dev.souofrancisco.playertitles.repository.executor.DatabaseExecutor;
@@ -23,6 +24,7 @@ public final class PersistenceModule implements PluginModule {
 
     @Override
     public void enable(@NotNull BootstrapContext context) {
+        PlayerTitlesDebug debug = requireDebug(context);
         PluginConfig pluginConfig = ConfigLoader.current();
 
         Path dataDirectory = context.plugin().getDataFolder().toPath();
@@ -33,10 +35,12 @@ public final class PersistenceModule implements PluginModule {
         DatabaseExecutor executor = DatabaseExecutor.create();
 
         PlayerTitleJdbcStore jdbcStore = new PlayerTitleJdbcStore(database, queries);
-        PlayerTitleRepository repository = new PlayerTitleRepository(executor, jdbcStore);
+        PlayerTitleRepository repository = new PlayerTitleRepository(executor, jdbcStore, debug);
 
         database.open();
         repository.initializeSchema().join();
+
+        debug.log("PERSIST", () -> "Schema initialization completed type=" + pluginConfig.database().type());
 
         context.database(database);
         context.databaseExecutor(executor);
@@ -45,20 +49,34 @@ public final class PersistenceModule implements PluginModule {
 
     @Override
     public void disable(@NotNull BootstrapContext context) {
-        RuntimeException failure = flushSelectedTitles(context);
+        PlayerTitlesDebug debug = context.playerTitlesDebug();
+
+        RuntimeException failure = flushSelectedTitles(context, debug);
         failure = closeExecutor(context, failure);
         failure = closeDatabase(context, failure);
+
+        if (debug != null) {
+            debug.log("PERSIST", () -> "Shutdown persistence completed");
+        }
 
         if (failure != null) throw failure;
     }
 
-    private @Nullable RuntimeException flushSelectedTitles(@NotNull BootstrapContext context) {
+    private @Nullable RuntimeException flushSelectedTitles(
+            @NotNull BootstrapContext context,
+            @Nullable PlayerTitlesDebug debug
+    ) {
         PlayerTitleRepository repository = context.playerTitleRepository();
         PlayerTitleCache cache = context.playerTitleCache();
         if (repository == null || cache == null) return null;
 
+        var snapshot = cache.snapshot();
+
         try {
-            repository.persistSelectedTitles(cache.snapshot()).join();
+            repository.persistSelectedTitles(snapshot).join();
+            if (debug != null) {
+                debug.log("PERSIST", () -> "Persisted shutdown batch players=" + snapshot.size());
+            }
             return null;
         } catch (CompletionException exception) {
             return new IllegalStateException("Could not persist remaining selected player titles.", exception);
@@ -103,5 +121,13 @@ public final class PersistenceModule implements PluginModule {
 
         failure.addSuppressed(exception);
         return failure;
+    }
+
+    private @NotNull PlayerTitlesDebug requireDebug(@NotNull BootstrapContext context) {
+        PlayerTitlesDebug debug = context.playerTitlesDebug();
+        if (debug == null) {
+            throw new IllegalStateException("PlayerTitlesDebug must be initialized before PersistenceModule.");
+        }
+        return debug;
     }
 }

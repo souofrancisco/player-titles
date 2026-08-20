@@ -1,5 +1,6 @@
 package dev.souofrancisco.playertitles.repository;
 
+import dev.souofrancisco.playertitles.PlayerTitlesDebug;
 import dev.souofrancisco.playertitles.internal.PlayerTitleState;
 import dev.souofrancisco.playertitles.repository.executor.DatabaseExecutor;
 import java.util.Collection;
@@ -12,44 +13,56 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Asynchronous persistence facade for player title state.
- *
- * <p>This class exposes {@link CompletableFuture} operations to runtime code and delegates every
- * blocking operation through {@link DatabaseExecutor} to {@link PlayerTitleJdbcStore}. It must not
- * contain JDBC statements, transactions, result-set mapping, or Bukkit/Folia scheduler logic.
  */
 @RequiredArgsConstructor
 public final class PlayerTitleRepository {
 
     private final @NotNull DatabaseExecutor databaseExecutor;
     private final @NotNull PlayerTitleJdbcStore jdbcStore;
+    private final @NotNull PlayerTitlesDebug debug;
 
     public @NotNull CompletableFuture<Void> initializeSchema() {
         return databaseExecutor.runAsync(jdbcStore::initializeSchema);
     }
 
     public @NotNull CompletableFuture<PlayerTitleState> load(@NotNull UUID playerId) {
-        return databaseExecutor.supplyAsync(() -> jdbcStore.load(playerId));
+        return databaseExecutor.supplyAsync(() -> {
+            PlayerTitleState state = jdbcStore.load(playerId);
+            debug.log("PERSIST", () -> "Loaded player " + playerId
+                    + " unlocks=" + state.unlockedTitles().size()
+                    + " selected=" + state.selectedTitleId());
+            return state;
+        });
     }
 
     public @NotNull CompletableFuture<Void> persistUnlock(
             @NotNull UUID playerId,
             @NotNull String titleId
     ) {
-        return databaseExecutor.runAsync(() -> jdbcStore.persistUnlock(playerId, titleId));
+        return databaseExecutor.runAsync(() -> {
+            jdbcStore.persistUnlock(playerId, titleId);
+            debug.log("PERSIST", () -> "Persisted unlock player=" + playerId + " title=" + titleId);
+        });
     }
 
     public @NotNull CompletableFuture<Void> persistRevoke(
             @NotNull UUID playerId,
             @NotNull String titleId
     ) {
-        return databaseExecutor.runAsync(() -> jdbcStore.persistRevoke(playerId, titleId));
+        return databaseExecutor.runAsync(() -> {
+            jdbcStore.persistRevoke(playerId, titleId);
+            debug.log("PERSIST", () -> "Persisted revoke player=" + playerId + " title=" + titleId);
+        });
     }
 
     public @NotNull CompletableFuture<Void> persistSelectedTitle(
             @NotNull UUID playerId,
             @Nullable String titleId
     ) {
-        return databaseExecutor.runAsync(() -> jdbcStore.persistSelectedTitle(playerId, titleId));
+        return databaseExecutor.runAsync(() -> {
+            jdbcStore.persistSelectedTitle(playerId, titleId);
+            debug.log("PERSIST", () -> "Persisted selected title player=" + playerId + " selected=" + titleId);
+        });
     }
 
     public @NotNull CompletableFuture<Void> persistSelectedTitles(

@@ -1,3 +1,6 @@
+# When false, no debug output is produced.
+debug: false
+
 database:
   # sqlite is the default and stores data in the plugin db/ folder.
   type: sqlite

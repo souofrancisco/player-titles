@@ -19,13 +19,6 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Internal runtime and business entry point for PlayerTitles systems.
- *
- * <p>Listeners, commands, GUI, and the public API facade use this controller for cache-backed
- * title reads and mutations. Join loading flows from {@link PlayerTitleRepository} to the player's entity scheduler and only
- * then into {@link PlayerTitleCache}, so a completed database load is discarded if the player's
- * scheduler has retired. Quit unloading removes immutable cache state and delegates selected-title
- * persistence back to the repository. Unlock and revoke progression changes are persisted
- * immediately. This class must not perform JDBC or invoke {@code DatabaseExecutor} directly.
  */
 @RequiredArgsConstructor
 public final class PlayerTitlesController {
@@ -36,7 +29,9 @@ public final class PlayerTitlesController {
     private final @NotNull Logger logger;
 
     public void loadPlayer(@NotNull Player player) {
-        repository.load(player.getUniqueId())
+        UUID playerId = player.getUniqueId();
+
+        repository.load(playerId)
                 .whenComplete((state, exception) -> {
                     if (exception != null) {
                         logger.log(Level.SEVERE, "Could not load player title state.", exception);
@@ -46,8 +41,7 @@ public final class PlayerTitlesController {
                     player.getScheduler().execute(
                             plugin,
                             () -> cache.load(state),
-                            () -> {
-                            },
+                            () -> {},
                             1L
                     );
                 });

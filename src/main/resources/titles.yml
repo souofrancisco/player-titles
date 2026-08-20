@@ -1,5 +1,6 @@
-# Text values are raw MiniMessage templates. Player-aware rendering should apply
-# PlaceholderAPI first, then MiniMessage, because placeholders can depend on the player.
+# Text values are raw MiniMessage templates.
+# GUI/player-aware rendering applies PlaceholderAPI first, then MiniMessage.
+# %playertitles_title% renders the selected prefix with MiniMessage only.
 adventurer:
   display-name: "<green>Adventurer</green>"
   prefix: "<dark_gray>[<green>Adventurer</green><dark_gray>]"

@@ -1,10 +1,12 @@
 package dev.souofrancisco.playertitles.config;
 
 import dev.souofrancisco.playertitles.config.loader.DatabaseConfigLoader;
+import dev.souofrancisco.playertitles.config.loader.DebugConfigLoader;
 import dev.souofrancisco.playertitles.config.loader.MenuConfigLoader;
 import dev.souofrancisco.playertitles.config.loader.MessageConfigLoader;
 import dev.souofrancisco.playertitles.config.loader.TitleConfigLoader;
 import dev.souofrancisco.playertitles.config.section.DatabaseConfig;
+import dev.souofrancisco.playertitles.config.section.DebugConfig;
 import dev.souofrancisco.playertitles.config.section.TitleConfig;
 import dev.souofrancisco.playertitles.config.section.menu.MenuConfig;
 import dev.souofrancisco.playertitles.config.section.message.PluginMessagesConfig;
@@ -25,9 +27,9 @@ import org.jetbrains.annotations.NotNull;
  * reference after the next config has been fully read and validated. A failed reload leaves the
  * previous configuration unchanged.
  *
- * <p>Text values are kept as raw templates. Player-aware rendering applies PlaceholderAPI where
- * player context is available, then parses the result with MiniMessage and internal PlayerTitles
- * tag resolvers.
+ * <p>Text values are kept as raw templates. Player-aware GUI rendering applies PlaceholderAPI where
+ * player context is available, then parses MiniMessage and internal PlayerTitles tag resolvers.
+ * The {@code %playertitles_title%} expansion renders the selected prefix with MiniMessage only.
  */
 @UtilityClass
 public final class ConfigLoader {
@@ -104,8 +106,9 @@ public final class ConfigLoader {
         Map<String, TitleConfig> titles = TitleConfigLoader.load(new ConfigReader(titlesRoot));
         MenuConfig menu = MenuConfigLoader.load(new ConfigReader(menuRoot));
         PluginMessagesConfig messages = MessageConfigLoader.load(new ConfigReader(configRoot));
+        DebugConfig debug = DebugConfigLoader.load(new ConfigReader(configRoot));
 
-        return new PluginConfig(database, titles, menu, messages);
+        return new PluginConfig(database, titles, menu, messages, debug);
     }
 
     private static void saveDefaultResource(

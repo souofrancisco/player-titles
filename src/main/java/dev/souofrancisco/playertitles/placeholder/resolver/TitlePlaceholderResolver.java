@@ -6,12 +6,15 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Resolves selected title placeholders through the internal PlayerTitles controller.
+ * Resolves {@code %playertitles_title%} from the selected title prefix.
+ *
+ * <p>This path is pure: UUID lookup, cache/config read, MiniMessage, then legacy serialization.
+ * It does not obtain a Bukkit {@code Player} or recursively resolve external PlaceholderAPI
+ * placeholders embedded in the prefix.
  */
 @RequiredArgsConstructor
 public final class TitlePlaceholderResolver implements PlaceholderResolver {
@@ -38,11 +41,8 @@ public final class TitlePlaceholderResolver implements PlaceholderResolver {
         UUID playerId = player.getUniqueId();
         if (!controller.isLoaded(playerId)) return "";
 
-        Player online = player.getPlayer();
-        if (online == null) return "";
-
         return controller.getSelectedTitlePrefix(playerId)
-                .map(prefix -> PAPI_TEXT.serialize(textRenderer.render(online, prefix)))
+                .map(prefix -> PAPI_TEXT.serialize(textRenderer.render(prefix)))
                 .orElse("");
     }
 }

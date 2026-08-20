@@ -60,6 +60,7 @@ public final class PlayerTitlesBootstrap {
         context.playerTitleRepository(null);
         context.databaseExecutor(null);
         context.database(null);
+        context.playerTitlesDebug(null);
         enabled = false;
     }
 
