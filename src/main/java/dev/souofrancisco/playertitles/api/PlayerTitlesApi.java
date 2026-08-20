@@ -9,7 +9,7 @@ import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Public API for cache-backed player title operations.
+ * Public integration contract for external plugins that need player title operations.
  *
  * <p>This contract is intentionally independent from Bukkit, Paper, and Folia entity types. Callers
  * identify players by {@link UUID} so API usage does not imply ownership of a live Minecraft entity or

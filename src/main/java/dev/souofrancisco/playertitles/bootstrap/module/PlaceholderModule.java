@@ -1,6 +1,6 @@
 package dev.souofrancisco.playertitles.bootstrap.module;
 
-import dev.souofrancisco.playertitles.api.PlayerTitlesApi;
+import dev.souofrancisco.playertitles.internal.PlayerTitlesController;
 import dev.souofrancisco.playertitles.bootstrap.BootstrapContext;
 import dev.souofrancisco.playertitles.bootstrap.PluginModule;
 import dev.souofrancisco.playertitles.placeholder.PlayerTitlesExpansion;
@@ -22,12 +22,12 @@ public final class PlaceholderModule implements PluginModule {
         PluginManager pluginManager = context.plugin().getServer().getPluginManager();
         if (!pluginManager.isPluginEnabled("PlaceholderAPI")) return;
 
-        PlayerTitlesApi api = context.playerTitlesApi();
-        if (api == null)
-            throw new IllegalStateException("PlayerTitlesApi must be initialized before PlaceholderModule.");
+        PlayerTitlesController controller = context.playerTitlesController();
+        if (controller == null)
+            throw new IllegalStateException("PlayerTitlesController must be initialized before PlaceholderModule.");
 
         PlayerTitlesPlaceholderParser parser = new PlayerTitlesPlaceholderParser(
-                new TitlePlaceholderResolver(api)
+                new TitlePlaceholderResolver(controller)
         );
 
         expansion = new PlayerTitlesExpansion(context.plugin(), parser);

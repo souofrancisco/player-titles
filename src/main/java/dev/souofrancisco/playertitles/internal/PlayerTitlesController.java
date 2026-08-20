@@ -18,9 +18,10 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Bridges asynchronous persistence results into Folia runtime player state.
+ * Internal runtime and business entry point for PlayerTitles systems.
  *
- * <p>Join loading flows from {@link PlayerTitleRepository} to the player's entity scheduler and only
+ * <p>Listeners, commands, GUI, and the public API facade use this controller for cache-backed
+ * title reads and mutations. Join loading flows from {@link PlayerTitleRepository} to the player's entity scheduler and only
  * then into {@link PlayerTitleCache}, so a completed database load is discarded if the player's
  * scheduler has retired. Quit unloading removes immutable cache state and delegates selected-title
  * persistence back to the repository. Unlock and revoke progression changes are persisted

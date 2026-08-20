@@ -3,15 +3,15 @@ package dev.souofrancisco.playertitles.bootstrap.module;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.executors.PlayerCommandExecutor;
-import dev.souofrancisco.playertitles.api.PlayerTitlesApi;
 import dev.souofrancisco.playertitles.bootstrap.BootstrapContext;
 import dev.souofrancisco.playertitles.bootstrap.PluginModule;
 import dev.souofrancisco.playertitles.config.PluginConfig;
 import dev.souofrancisco.playertitles.gui.PlayerTitlesMenu;
+import dev.souofrancisco.playertitles.internal.PlayerTitlesController;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Registers the CommandAPI entry point for opening the titles menu.
+ * Registers the internal command entry point for opening the controller-backed titles menu.
  */
 public final class CommandModule implements PluginModule {
 
@@ -23,11 +23,11 @@ public final class CommandModule implements PluginModule {
         if (pluginConfig == null)
             throw new IllegalStateException("PluginConfig must be initialized before CommandModule.");
 
-        PlayerTitlesApi api = context.playerTitlesApi();
-        if (api == null)
-            throw new IllegalStateException("PlayerTitlesApi must be initialized before CommandModule.");
+        PlayerTitlesController controller = context.playerTitlesController();
+        if (controller == null)
+            throw new IllegalStateException("PlayerTitlesController must be initialized before CommandModule.");
 
-        PlayerTitlesMenu menu = new PlayerTitlesMenu(context.plugin(), pluginConfig, api);
+        PlayerTitlesMenu menu = new PlayerTitlesMenu(context.plugin(), pluginConfig, controller);
         new CommandAPICommand(COMMAND_NAME)
                 .withAliases("titles")
                 .withShortDescription("Opens the PlayerTitles menu.")
