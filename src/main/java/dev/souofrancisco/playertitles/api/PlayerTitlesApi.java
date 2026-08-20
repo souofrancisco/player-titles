@@ -6,6 +6,7 @@ import dev.souofrancisco.playertitles.result.TitleUnlockResult;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -90,39 +91,43 @@ public interface PlayerTitlesApi {
     boolean hasTitle(@NotNull UUID playerId, @NotNull String titleId);
 
     /**
-     * Unlocks a title for a loaded player.
+     * Unlocks a title for a loaded or offline player.
      *
-     * <p>This method updates the in-memory cache and schedules asynchronous persistence for newly
-     * unlocked titles. Implementations must be safe to call from different Paper/Folia server
-     * threads, provided callers pass non-null arguments.
+     * <p>No Bukkit {@code Player} is required. Loaded players update the runtime cache first and
+     * schedule persistence asynchronously. Offline players mutate persistent storage directly and do
+     * not enter the runtime cache. Callers must not block a Folia/server thread waiting on the
+     * returned future ({@code join}/{@code get}). Database failures complete the future exceptionally.
      *
      * @param playerId UUID of the player receiving the title
      * @param titleId title ID to unlock
-     * @return a non-null result describing the cache outcome: {@link TitleUnlockResult#UNLOCKED}
-     *     when the title was newly unlocked, {@link TitleUnlockResult#ALREADY_UNLOCKED} when the
-     *     player already owned it, {@link TitleUnlockResult#TITLE_NOT_FOUND} when the title is not
-     *     configured, or {@link TitleUnlockResult#PLAYER_NOT_LOADED} when the player is not loaded
+     * @return a future completing with {@link TitleUnlockResult#UNLOCKED},
+     *     {@link TitleUnlockResult#ALREADY_UNLOCKED}, or {@link TitleUnlockResult#TITLE_NOT_FOUND}
      */
     @NotNull
-    TitleUnlockResult unlockTitle(@NotNull UUID playerId, @NotNull String titleId);
+    CompletableFuture<TitleUnlockResult> unlockTitle(
+            @NotNull UUID playerId,
+            @NotNull String titleId
+    );
 
     /**
-     * Revokes a title from a loaded player.
+     * Revokes a title from a loaded or offline player.
      *
-     * <p>This progression change updates the in-memory cache and schedules immediate asynchronous
-     * persistence. If the revoked title was selected, the active selection is cleared in runtime
-     * state and in the same revoke persistence operation. Implementations must be safe to call from
-     * different Paper/Folia server threads, provided callers pass non-null arguments.
+     * <p>No Bukkit {@code Player} is required. Loaded players update the runtime cache first and
+     * schedule persistence asynchronously. Offline players mutate persistent storage directly and do
+     * not enter the runtime cache. When the revoked title was selected, selection is cleared in the
+     * same persistence transaction. Callers must not block a Folia/server thread waiting on the
+     * returned future ({@code join}/{@code get}). Database failures complete the future exceptionally.
      *
      * @param playerId UUID of the player losing the title
      * @param titleId title ID to revoke
-     * @return a non-null result describing the cache outcome: {@link TitleRevokeResult#REVOKED}
-     *     when the title was removed, {@link TitleRevokeResult#NOT_UNLOCKED} when the player did not
-     *     own it, {@link TitleRevokeResult#TITLE_NOT_FOUND} when the title is not configured, or
-     *     {@link TitleRevokeResult#PLAYER_NOT_LOADED} when the player is not loaded
+     * @return a future completing with {@link TitleRevokeResult#REVOKED},
+     *     {@link TitleRevokeResult#NOT_UNLOCKED}, or {@link TitleRevokeResult#TITLE_NOT_FOUND}
      */
     @NotNull
-    TitleRevokeResult revokeTitle(@NotNull UUID playerId, @NotNull String titleId);
+    CompletableFuture<TitleRevokeResult> revokeTitle(
+            @NotNull UUID playerId,
+            @NotNull String titleId
+    );
 
     /**
      * Selects one of a loaded player's unlocked titles.

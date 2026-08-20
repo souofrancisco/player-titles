@@ -8,6 +8,7 @@ import dev.souofrancisco.playertitles.result.TitleUnlockResult;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
  * Public service facade for the PlayerTitles API.
  *
  * <p>This class keeps API callers decoupled from the internal orchestration layer while delegating
- * all cache-backed business behavior to {@link PlayerTitlesController}.
+ * all business behavior to {@link PlayerTitlesController}.
  */
 @RequiredArgsConstructor
 public final class PlayerTitlesService implements PlayerTitlesApi {
@@ -49,19 +50,19 @@ public final class PlayerTitlesService implements PlayerTitlesApi {
     }
 
     @Override
-    public @NotNull TitleUnlockResult unlockTitle(
+    public @NotNull CompletableFuture<TitleUnlockResult> unlockTitle(
             @NotNull UUID playerId,
             @NotNull String titleId
     ) {
-        return controller.unlockTitle(playerId, titleId);
+        return controller.unlockTitleAsync(playerId, titleId);
     }
 
     @Override
-    public @NotNull TitleRevokeResult revokeTitle(
+    public @NotNull CompletableFuture<TitleRevokeResult> revokeTitle(
             @NotNull UUID playerId,
             @NotNull String titleId
     ) {
-        return controller.revokeTitle(playerId, titleId);
+        return controller.revokeTitleAsync(playerId, titleId);
     }
 
     @Override

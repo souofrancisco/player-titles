@@ -33,7 +33,9 @@ public final class MessageConfigLoader {
                 giveReader.requireString("success"),
                 giveReader.requireString("already-unlocked"),
                 giveReader.requireString("title-not-found"),
-                giveReader.requireString("player-not-loaded")
+                giveReader.requireString("player-not-loaded"),
+                giveReader.requireString("player-not-found"),
+                giveReader.requireString("failure")
         );
     }
 
@@ -42,7 +44,9 @@ public final class MessageConfigLoader {
                 revokeReader.requireString("success"),
                 revokeReader.requireString("not-unlocked"),
                 revokeReader.requireString("title-not-found"),
-                revokeReader.requireString("player-not-loaded")
+                revokeReader.requireString("player-not-loaded"),
+                revokeReader.requireString("player-not-found"),
+                revokeReader.requireString("failure")
         );
     }
 

@@ -9,5 +9,7 @@ public record AdminGiveMessagesConfig(
         @NotNull String success,
         @NotNull String alreadyUnlocked,
         @NotNull String titleNotFound,
-        @NotNull String playerNotLoaded
+        @NotNull String playerNotLoaded,
+        @NotNull String playerNotFound,
+        @NotNull String failure
 ) {}

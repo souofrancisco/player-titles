@@ -35,23 +35,29 @@ public final class PlayerTitleRepository {
         });
     }
 
-    public @NotNull CompletableFuture<Void> persistUnlock(
+    public @NotNull CompletableFuture<Boolean> persistUnlock(
             @NotNull UUID playerId,
             @NotNull String titleId
     ) {
-        return databaseExecutor.runAsync(() -> {
-            jdbcStore.persistUnlock(playerId, titleId);
-            debug.log("PERSIST", () -> "Persisted unlock player=" + playerId + " title=" + titleId);
+        return databaseExecutor.supplyAsync(() -> {
+            boolean inserted = jdbcStore.persistUnlock(playerId, titleId);
+            debug.log("PERSIST", () -> "Persisted unlock player=" + playerId
+                    + " title=" + titleId
+                    + " inserted=" + inserted);
+            return inserted;
         });
     }
 
-    public @NotNull CompletableFuture<Void> persistRevoke(
+    public @NotNull CompletableFuture<Boolean> persistRevoke(
             @NotNull UUID playerId,
             @NotNull String titleId
     ) {
-        return databaseExecutor.runAsync(() -> {
-            jdbcStore.persistRevoke(playerId, titleId);
-            debug.log("PERSIST", () -> "Persisted revoke player=" + playerId + " title=" + titleId);
+        return databaseExecutor.supplyAsync(() -> {
+            boolean deleted = jdbcStore.persistRevoke(playerId, titleId);
+            debug.log("PERSIST", () -> "Persisted revoke player=" + playerId
+                    + " title=" + titleId
+                    + " deleted=" + deleted);
+            return deleted;
         });
     }
 

@@ -25,7 +25,7 @@ repositories {
 
 dependencies {
     compileOnly("dev.folia:folia-api:1.21.11-R0.1-SNAPSHOT")
-    compileOnly("dev.jorel:commandapi-bukkit-core:11.1.0")
+    compileOnly("dev.jorel:commandapi-paper-core:11.1.0")
     compileOnly("me.clip:placeholderapi:2.12.3")
 
     compileOnly("org.projectlombok:lombok:1.18.46")

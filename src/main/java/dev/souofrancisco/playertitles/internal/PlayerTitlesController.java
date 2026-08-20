@@ -10,6 +10,7 @@ import dev.souofrancisco.playertitles.result.TitleUnlockResult;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -80,7 +81,77 @@ public final class PlayerTitlesController {
                 .orElse(false);
     }
 
-    public @NotNull TitleUnlockResult unlockTitle(
+    /**
+     * Unlocks a title for a loaded or offline player.
+     *
+     * <p>Loaded players use the cache-first path. Offline players mutate persistence directly and
+     * never enter the runtime cache unless they become loaded meanwhile (mutation-only reconcile).
+     */
+    public @NotNull CompletableFuture<TitleUnlockResult> unlockTitleAsync(
+            @NotNull UUID playerId,
+            @NotNull String titleId
+    ) {
+        if (!titleExists(titleId)) {
+            return CompletableFuture.completedFuture(TitleUnlockResult.TITLE_NOT_FOUND);
+        }
+
+        if (isLoaded(playerId)) {
+            TitleUnlockResult loadedResult = unlockTitleLoaded(playerId, titleId);
+            if (loadedResult != TitleUnlockResult.PLAYER_NOT_LOADED) {
+                return CompletableFuture.completedFuture(loadedResult);
+            }
+        }
+
+        return repository.persistUnlock(playerId, titleId)
+                .thenApply(inserted -> {
+                    TitleUnlockResult result = inserted
+                            ? TitleUnlockResult.UNLOCKED
+                            : TitleUnlockResult.ALREADY_UNLOCKED;
+
+                    if (inserted) reconcile(playerId, () -> applyUnlockToCache(playerId, titleId));
+
+                    return result;
+                });
+    }
+
+    /**
+     * Revokes a title from a loaded or offline player.
+     *
+     * <p>Loaded players use the cache-first path. Offline players mutate persistence directly and
+     * never enter the runtime cache unless they become loaded meanwhile (mutation-only reconcile).
+     */
+    public @NotNull CompletableFuture<TitleRevokeResult> revokeTitleAsync(
+            @NotNull UUID playerId,
+            @NotNull String titleId
+    ) {
+        if (!titleExists(titleId)) {
+            return CompletableFuture.completedFuture(TitleRevokeResult.TITLE_NOT_FOUND);
+        }
+
+        if (isLoaded(playerId)) {
+            TitleRevokeResult loadedResult = revokeTitleLoaded(playerId, titleId);
+            if (loadedResult != TitleRevokeResult.PLAYER_NOT_LOADED) {
+                return CompletableFuture.completedFuture(loadedResult);
+            }
+        }
+
+        return repository.persistRevoke(playerId, titleId)
+                .thenApply(deleted -> {
+                    TitleRevokeResult result = deleted
+                            ? TitleRevokeResult.REVOKED
+                            : TitleRevokeResult.NOT_UNLOCKED;
+
+                    if (deleted) reconcile(playerId, () -> applyRevokeToCache(playerId, titleId));
+
+                    return result;
+                });
+    }
+
+    /**
+     * Cache-first unlock for a loaded player. Returns {@link TitleUnlockResult#PLAYER_NOT_LOADED}
+     * when the player is not in the runtime cache.
+     */
+    public @NotNull TitleUnlockResult unlockTitleLoaded(
             @NotNull UUID playerId,
             @NotNull String titleId
     ) {
@@ -114,7 +185,11 @@ public final class PlayerTitlesController {
         return unlockResult;
     }
 
-    public @NotNull TitleRevokeResult revokeTitle(
+    /**
+     * Cache-first revoke for a loaded player. Returns {@link TitleRevokeResult#PLAYER_NOT_LOADED}
+     * when the player is not in the runtime cache.
+     */
+    public @NotNull TitleRevokeResult revokeTitleLoaded(
             @NotNull UUID playerId,
             @NotNull String titleId
     ) {
@@ -193,6 +268,36 @@ public final class PlayerTitlesController {
         });
 
         return result.get();
+    }
+
+    /**
+     * Replays a persisted mutation onto the runtime cache when the target became loaded while the
+     * database write was running.
+     *
+     * <p>Only the mutated title is touched: full state is never reloaded, so a selection that is
+     * still cache-only cannot be overwritten. {@code updateIfLoaded} never inserts, so an offline
+     * player still cannot enter the cache. The player lookup runs on the global region thread and the
+     * cache write on the target's {@link org.bukkit.entity.Player#getScheduler() EntityScheduler},
+     * the same publication path {@link #loadPlayer(Player)} uses, so a join snapshot read before this
+     * write is always published first and then corrected here.
+     */
+    private void reconcile(@NotNull UUID playerId, @NotNull Runnable cacheMutation) {
+        plugin.getServer().getGlobalRegionScheduler().execute(plugin, () -> {
+            Player player = plugin.getServer().getPlayer(playerId);
+            if (player == null) return;
+
+            player.getScheduler().execute(plugin, cacheMutation, () -> {}, 1L);
+        });
+    }
+
+    private void applyUnlockToCache(@NotNull UUID playerId, @NotNull String titleId) {
+        cache.updateIfLoaded(playerId, state ->
+                state.hasTitle(titleId) ? state : state.unlock(titleId)
+        );
+    }
+
+    private void applyRevokeToCache(@NotNull UUID playerId, @NotNull String titleId) {
+        cache.revokeIfLoaded(playerId, titleId, state -> state.hasTitle(titleId));
     }
 
     private void persistSelectedTitle(@NotNull PlayerTitleState state) {

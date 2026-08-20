@@ -9,5 +9,7 @@ public record AdminRevokeMessagesConfig(
         @NotNull String success,
         @NotNull String notUnlocked,
         @NotNull String titleNotFound,
-        @NotNull String playerNotLoaded
+        @NotNull String playerNotLoaded,
+        @NotNull String playerNotFound,
+        @NotNull String failure
 ) {}

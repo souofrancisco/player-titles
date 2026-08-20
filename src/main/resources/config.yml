@@ -21,12 +21,16 @@ messages:
       already-unlocked: "<yellow><player> already owns <title>."
       title-not-found: "<red>Title <title> does not exist."
       player-not-loaded: "<red><player> is not currently loaded."
+      player-not-found: "<red>Could not resolve exactly one player for that name."
+      failure: "<red>The title change failed: <white><error></white>"
 
     revoke:
       success: "<green>Title <white><title></white> revoked from <white><player></white>."
       not-unlocked: "<yellow><player> does not own <title>."
       title-not-found: "<red>Title <title> does not exist."
       player-not-loaded: "<red><player> is not currently loaded."
+      player-not-found: "<red>Could not resolve exactly one player for that name."
+      failure: "<red>The title change failed: <white><error></white>"
 
     reload:
       success: "<green>PlayerTitles configuration reloaded."

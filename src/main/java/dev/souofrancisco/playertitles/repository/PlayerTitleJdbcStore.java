@@ -69,27 +69,40 @@ public final class PlayerTitleJdbcStore {
         return new PlayerTitleState(playerId, unlockedTitles, selectedTitleId);
     }
 
-    public void persistUnlock(
+    /**
+     * @return {@code true} when a new unlock row was inserted, or {@code false} when the title was
+     *     already owned ({@code INSERT IGNORE} / {@code INSERT OR IGNORE} no-op)
+     */
+    public boolean persistUnlock(
             @NotNull UUID playerId,
             @NotNull String titleId
     ) throws SQLException {
+        boolean[] inserted = {false};
         withTransaction(connection -> {
             String playerUuid = playerId.toString();
             long timestamp = now();
             insertProfileIfAbsent(connection, playerUuid, timestamp);
-            insertUnlock(connection, playerUuid, titleId, timestamp);
+            inserted[0] = insertUnlock(connection, playerUuid, titleId, timestamp);
         });
+        return inserted[0];
     }
 
-    public void persistRevoke(
+    /**
+     * Deletes the unlock row and clears {@code selected_title_id} when it matches, in one transaction.
+     *
+     * @return {@code true} when an unlock row was deleted, or {@code false} when nothing was revoked
+     */
+    public boolean persistRevoke(
             @NotNull UUID playerId,
             @NotNull String titleId
     ) throws SQLException {
+        boolean[] deleted = {false};
         withTransaction(connection -> {
             String playerUuid = playerId.toString();
-            deleteUnlock(connection, playerUuid, titleId);
+            deleted[0] = deleteUnlock(connection, playerUuid, titleId);
             clearSelectedTitleIfMatches(connection, playerUuid, titleId, now());
         });
+        return deleted[0];
     }
 
     public void persistSelectedTitle(
@@ -158,7 +171,7 @@ public final class PlayerTitleJdbcStore {
         }
     }
 
-    private void insertUnlock(
+    private boolean insertUnlock(
             @NotNull Connection connection,
             @NotNull String playerUuid,
             @NotNull String titleId,
@@ -168,11 +181,11 @@ public final class PlayerTitleJdbcStore {
             statement.setString(1, playerUuid);
             statement.setString(2, titleId);
             statement.setLong(3, timestamp);
-            statement.executeUpdate();
+            return statement.executeUpdate() > 0;
         }
     }
 
-    private void deleteUnlock(
+    private boolean deleteUnlock(
             @NotNull Connection connection,
             @NotNull String playerUuid,
             @NotNull String titleId
@@ -180,7 +193,7 @@ public final class PlayerTitleJdbcStore {
         try (PreparedStatement statement = connection.prepareStatement(queries.deleteUnlock())) {
             statement.setString(1, playerUuid);
             statement.setString(2, titleId);
-            statement.executeUpdate();
+            return statement.executeUpdate() > 0;
         }
     }
 

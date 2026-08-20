@@ -25,8 +25,8 @@ public final class TitlesAdminCommand {
     public void register(@NotNull JavaPlugin plugin) {
         new CommandAPICommand(NAME)
                 .withShortDescription("Manages player title ownership.")
-                .withSubcommand(new GiveTitleSubcommand(controller, textRenderer).create())
-                .withSubcommand(new RevokeTitleSubcommand(controller, textRenderer).create())
+                .withSubcommand(new GiveTitleSubcommand(this.plugin, controller, textRenderer).create())
+                .withSubcommand(new RevokeTitleSubcommand(this.plugin, controller, textRenderer).create())
                 .withSubcommand(new ReloadTitlesSubcommand(this.plugin).create())
                 .register(plugin);
     }
