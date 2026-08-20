@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Objects;
 import dev.souofrancisco.playertitles.bootstrap.module.ConfigModule;
 import dev.souofrancisco.playertitles.bootstrap.module.CoreModule;
+import dev.souofrancisco.playertitles.bootstrap.module.ListenerModule;
 import dev.souofrancisco.playertitles.bootstrap.module.PersistenceModule;
+import dev.souofrancisco.playertitles.bootstrap.module.PlaceholderModule;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -24,7 +26,9 @@ public final class PlayerTitlesBootstrap {
         modules = List.of(
                 new ConfigModule(),
                 new PersistenceModule(),
-                new CoreModule()
+                new CoreModule(),
+                new ListenerModule(),
+                new PlaceholderModule()
         );
     }
 
@@ -48,8 +52,11 @@ public final class PlayerTitlesBootstrap {
 
     public void disable() {
         disableEnabledModules();
+        context.playerTitlesApi(null);
         context.playerTitlesController(null);
         context.playerTitleCache(null);
+        context.playerTitleRepository(null);
+        context.databaseExecutor(null);
         context.database(null);
         context.pluginConfig(null);
         enabled = false;

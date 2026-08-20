@@ -1,5 +1,7 @@
 package dev.souofrancisco.playertitles.internal;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -10,8 +12,9 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Thread-safe runtime cache for loaded player title state.
  *
- * <p>The backing map is fully encapsulated. Mutating operations use atomic {@link ConcurrentHashMap}
- * methods so updates are safe when called from different Paper/Folia scheduler threads.
+ * <p>This class is the concurrency boundary for immutable {@link PlayerTitleState} snapshots. The
+ * backing map is fully encapsulated and mutating operations use atomic {@link ConcurrentHashMap}
+ * methods. It must not contain database, repository, executor, or Bukkit/Folia scheduler logic.
  */
 public final class PlayerTitleCache {
 
@@ -32,6 +35,10 @@ public final class PlayerTitleCache {
 
     public @NotNull Optional<PlayerTitleState> unload(@NotNull UUID playerId) {
         return Optional.ofNullable(states.remove(playerId));
+    }
+
+    public @NotNull Collection<@NotNull PlayerTitleState> snapshot() {
+        return List.copyOf(states.values());
     }
 
     public @NotNull Optional<PlayerTitleState> updateIfLoaded(

@@ -5,4 +5,5 @@ api-version: '1.21'
 description: '${description}'
 author: souofrancisco
 depend: [CommandAPI]
+softdepend: [PlaceholderAPI]
 folia-supported: true

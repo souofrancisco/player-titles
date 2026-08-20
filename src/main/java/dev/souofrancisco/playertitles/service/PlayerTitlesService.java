@@ -38,6 +38,11 @@ public final class PlayerTitlesService implements PlayerTitlesApi {
     }
 
     @Override
+    public @NotNull Optional<String> getSelectedTitlePrefix(@NotNull UUID playerId) {
+        return controller.getSelectedTitlePrefix(playerId);
+    }
+
+    @Override
     public boolean hasTitle(@NotNull UUID playerId, @NotNull String titleId) {
         return controller.hasTitle(playerId, titleId);
     }

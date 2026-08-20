@@ -5,6 +5,8 @@ import dev.souofrancisco.playertitles.bootstrap.PluginModule;
 import dev.souofrancisco.playertitles.config.PluginConfig;
 import dev.souofrancisco.playertitles.internal.PlayerTitleCache;
 import dev.souofrancisco.playertitles.internal.PlayerTitlesController;
+import dev.souofrancisco.playertitles.repository.PlayerTitleRepository;
+import dev.souofrancisco.playertitles.service.PlayerTitlesService;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -18,10 +20,21 @@ public final class CoreModule implements PluginModule {
         if (pluginConfig == null)
             throw new IllegalStateException("PluginConfig must be initialized before CoreModule.");
 
+        PlayerTitleRepository repository = context.playerTitleRepository();
+        if (repository == null)
+            throw new IllegalStateException("PlayerTitleRepository must be initialized before CoreModule.");
+
         PlayerTitleCache cache = new PlayerTitleCache();
-        PlayerTitlesController controller = new PlayerTitlesController(cache, pluginConfig);
+        PlayerTitlesController controller = new PlayerTitlesController(
+                context.plugin(),
+                cache,
+                pluginConfig,
+                repository,
+                context.plugin().getLogger()
+        );
 
         context.playerTitleCache(cache);
         context.playerTitlesController(controller);
+        context.playerTitlesApi(new PlayerTitlesService(controller));
     }
 }

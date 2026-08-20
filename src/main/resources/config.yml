@@ -1,3 +1,16 @@
+database:
+  # sqlite is the default and stores data in the plugin data folder.
+  type: sqlite
+  sqlite:
+    file: player-titles.db
+  mysql:
+    host: localhost
+    port: 3306
+    database: player_titles
+    username: player_titles
+    password: ""
+    maximum-pool-size: 4
+
 titles:
   # Text values are raw MiniMessage templates. Player-aware rendering should apply
   # PlaceholderAPI first, then MiniMessage, because placeholders can depend on the player.

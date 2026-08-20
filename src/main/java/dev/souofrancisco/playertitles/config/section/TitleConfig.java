@@ -1,6 +1,5 @@
 package dev.souofrancisco.playertitles.config.section;
 
-import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -16,12 +15,4 @@ public record TitleConfig(
         @NotNull String displayName,
         @NotNull String prefix,
         @NotNull TitleIconConfig icon
-) {
-
-    public TitleConfig {
-        Objects.requireNonNull(id, "id");
-        Objects.requireNonNull(displayName, "displayName");
-        Objects.requireNonNull(prefix, "prefix");
-        Objects.requireNonNull(icon, "icon");
-    }
-}
+) {}

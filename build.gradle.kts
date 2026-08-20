@@ -19,11 +19,13 @@ repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://repo.xenondevs.xyz/releases")
+    maven("https://repo.helpch.at/releases/")
 }
 
 dependencies {
     compileOnly("dev.folia:folia-api:1.21.11-R0.1-SNAPSHOT")
     compileOnly("dev.jorel:commandapi-paper-core:11.1.0")
+    compileOnly("me.clip:placeholderapi:2.12.3")
 
     compileOnly("org.projectlombok:lombok:1.18.46")
     annotationProcessor("org.projectlombok:lombok:1.18.46")
@@ -33,6 +35,7 @@ dependencies {
         exclude(group = "org.slf4j")
     }
     implementation("org.xerial:sqlite-jdbc:3.53.2.1")
+    implementation("com.mysql:mysql-connector-j:9.5.0")
 }
 
 tasks.matching { it.name in setOf("compileTestJava", "processTestResources", "testClasses", "test") }.configureEach {

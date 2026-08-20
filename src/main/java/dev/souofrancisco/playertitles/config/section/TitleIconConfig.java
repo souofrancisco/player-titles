@@ -1,7 +1,6 @@
 package dev.souofrancisco.playertitles.config.section;
 
 import java.util.List;
-import java.util.Objects;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.jetbrains.annotations.NotNull;
@@ -24,9 +23,6 @@ public record TitleIconConfig(
 ) {
 
     public TitleIconConfig {
-        Objects.requireNonNull(material, "material");
-        Objects.requireNonNull(name, "name");
-        Objects.requireNonNull(lore, "lore");
         lore = List.copyOf(lore);
     }
 }

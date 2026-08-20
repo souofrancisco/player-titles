@@ -61,6 +61,20 @@ public interface PlayerTitlesApi {
     Optional<String> getSelectedTitle(@NotNull UUID playerId);
 
     /**
+     * Gets the configured prefix for the title currently selected by a loaded player.
+     *
+     * <p>This method only reads cache-backed state and already-loaded configuration. It performs no
+     * database access and preserves the configured MiniMessage string exactly as written.
+     *
+     * @param playerId UUID of the player whose selected title prefix should be returned
+     * @return a non-null {@link Optional} containing the selected title prefix when the player is
+     *     loaded, has a selected title, and that title is configured. Returns {@link Optional#empty()}
+     *     otherwise.
+     */
+    @NotNull
+    Optional<String> getSelectedTitlePrefix(@NotNull UUID playerId);
+
+    /**
      * Checks whether a loaded player owns an unlocked title.
      *
      * <p>This method only reads the in-memory cache and performs no database access. Implementations
@@ -77,9 +91,9 @@ public interface PlayerTitlesApi {
     /**
      * Unlocks a title for a loaded player.
      *
-     * <p>This method only updates the in-memory cache and performs no database access. Implementations
-     * must be safe to call from different Paper/Folia server threads, provided callers pass
-     * non-null arguments.
+     * <p>This method updates the in-memory cache and schedules asynchronous persistence for newly
+     * unlocked titles. Implementations must be safe to call from different Paper/Folia server
+     * threads, provided callers pass non-null arguments.
      *
      * @param playerId UUID of the player receiving the title
      * @param titleId title ID to unlock

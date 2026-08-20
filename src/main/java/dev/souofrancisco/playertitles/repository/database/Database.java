@@ -1,39 +1,28 @@
-package dev.souofrancisco.playertitles.repository;
+package dev.souofrancisco.playertitles.repository.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
+import org.jetbrains.annotations.NotNull;
 
-public final class Database implements AutoCloseable {
+/**
+ * Owns the common HikariCP connection-pool lifecycle for a persistence engine.
+ */
+public abstract class Database implements AutoCloseable {
 
     private HikariDataSource dataSource;
 
-    public void open(Path dataDirectory) {
+    public final void open() {
         if (dataSource != null) {
             throw new IllegalStateException("Database is already open.");
         }
 
-        try {
-            Files.createDirectories(dataDirectory);
-        } catch (IOException exception) {
-            throw new IllegalStateException("Could not create plugin data directory.", exception);
-        }
-
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:sqlite:" + dataDirectory.resolve("player-titles.db").toAbsolutePath());
-        config.setPoolName("PlayerTitlesPool");
-        config.setMaximumPoolSize(1);
-        config.setConnectionInitSql("PRAGMA foreign_keys = ON");
-
-        dataSource = new HikariDataSource(config);
+        dataSource = new HikariDataSource(hikariConfig());
         verifyConnection();
     }
 
-    public Connection getConnection() throws SQLException {
+    public final @NotNull Connection getConnection() throws SQLException {
         if (dataSource == null) {
             throw new IllegalStateException("Database is not open.");
         }
@@ -42,15 +31,29 @@ public final class Database implements AutoCloseable {
     }
 
     @Override
-    public void close() {
+    public final void close() {
         if (dataSource != null) {
             dataSource.close();
             dataSource = null;
         }
     }
 
+    protected abstract @NotNull HikariConfig hikariConfig();
+
+    protected @NotNull HikariConfig baseHikariConfig() {
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setPoolName("PlayerTitlesPool");
+        hikariConfig.setAutoCommit(true);
+        hikariConfig.setConnectionTimeout(10_000L);
+        hikariConfig.setValidationTimeout(3_000L);
+        return hikariConfig;
+    }
+
+    protected void configureConnection(@NotNull Connection connection) throws SQLException {}
+
     private void verifyConnection() {
         try (Connection connection = getConnection()) {
+            configureConnection(connection);
             if (!connection.isValid(2)) {
                 throw new IllegalStateException("Database connection validation failed.");
             }
