@@ -30,7 +30,21 @@ public final class InterfaceModule implements PluginModule {
 
     @Override
     public void disable(@NotNull BootstrapContext context) {
-        CommandAPI.unregister(TitlesCommand.NAME);
-        CommandAPI.unregister(TitlesAdminCommand.NAME);
+        unregisterSafely(TitlesCommand.NAME);
+        unregisterSafely(TitlesAdminCommand.NAME);
+    }
+
+    /**
+     * Attempts to unregister a command, silently ignoring failures caused by Folia's unsupported
+     * Bukkit scheduler. CommandAPI internally schedules a sync task during unregister which Folia
+     * blocks with {@link UnsupportedOperationException}. On server shutdown this is harmless because
+     * commands are discarded with the plugin.
+     */
+    private void unregisterSafely(@NotNull String commandName) {
+        try {
+            CommandAPI.unregister(commandName);
+        } catch (UnsupportedOperationException ignored) {
+            // Folia does not support the Bukkit scheduler that CommandAPI uses internally.
+        }
     }
 }
